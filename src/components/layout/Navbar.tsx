@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
+import { useAuth } from '@/store/useAuth'
 import { 
   Search, 
   Library, 
@@ -15,6 +15,7 @@ import {
   Info,
   TriangleAlert,
   ShieldAlert,
+  Clock,
 } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
@@ -29,32 +30,32 @@ import {
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
-import { notificationApi } from '@/api/notification'
+import { notificationService } from '@/features/users/services/notificationService'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const { user, logout, isAuthenticated } = useAuthStore()
+  const { user, logout, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const { data: notificationsData } = useQuery({
     queryKey: ['notifications'],
-    queryFn: () => notificationApi.getMy(),
+    queryFn: () => notificationService.getMy(),
     enabled: isAuthenticated,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000, 
   })
 
   const { data: unreadCountData } = useQuery({
     queryKey: ['unread-count'],
-    queryFn: () => notificationApi.getUnreadCount(),
+    queryFn: () => notificationService.getUnreadCount(),
     enabled: isAuthenticated,
     refetchInterval: 30000,
   })
 
   const readMutation = useMutation({
-    mutationFn: (id: number) => notificationApi.markAsRead(id),
+    mutationFn: (id: number) => notificationService.markAsRead(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       queryClient.invalidateQueries({ queryKey: ['unread-count'] })
@@ -62,7 +63,7 @@ export function Navbar() {
   })
 
   const readAllMutation = useMutation({
-    mutationFn: () => notificationApi.markAllAsRead(),
+    mutationFn: () => notificationService.markAllAsRead(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       queryClient.invalidateQueries({ queryKey: ['unread-count'] })
@@ -70,7 +71,7 @@ export function Navbar() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => notificationApi.delete(id),
+    mutationFn: (id: number) => notificationService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     }
@@ -101,7 +102,7 @@ export function Navbar() {
                 <Library className="h-6 w-6" />
               </div>
               <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-primary to-blue-600">
-                BiblioSphere
+                IOMD Library
               </span>
             </Link>
           </div>
@@ -150,7 +151,7 @@ export function Navbar() {
                   <ScrollArea className="h-80">
                     {notifications.length > 0 ? (
                       <div className="divide-y divide-primary/5">
-                        {notifications.map((notif) => (
+                        {notifications.map((notif: { id: number; type: string; isRead: boolean; title: string; message: string; createdAt: string }) => (
                           <div 
                             key={notif.id} 
                             className={cn(
@@ -202,10 +203,6 @@ export function Navbar() {
                       </div>
                     )}
                   </ScrollArea>
-                  <DropdownMenuSeparator className="m-0" />
-                  <DropdownMenuItem className="p-3 text-center justify-center font-bold text-xs text-primary hover:bg-primary/5 cursor-pointer rounded-b-2xl">
-                    View all notifications
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -237,6 +234,10 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => navigate('/my-books')} className="cursor-pointer gap-3 rounded-xl py-2.5">
                     <Library className="h-4 w-4 text-primary" />
                     <span className="font-bold">My Library</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/my-reservations')} className="cursor-pointer gap-3 rounded-xl py-2.5">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="font-bold">My Reservations</span>
                   </DropdownMenuItem>
                   {(user.role === 'LIBRARIAN' || user.role === 'SUPER_ADMIN') && (
                     <DropdownMenuItem onClick={() => navigate('/admin')} className="cursor-pointer gap-3 rounded-xl py-2.5 bg-primary/5 text-primary focus:bg-primary/10">
@@ -293,18 +294,6 @@ export function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </form>
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="secondary" asChild className="w-full justify-start gap-3 h-12 rounded-2xl font-black">
-              <Link to="/categories">
-                <Menu className="h-4 w-4 text-primary" /> Categories
-              </Link>
-            </Button>
-            <Button variant="secondary" asChild className="w-full justify-start gap-3 h-12 rounded-2xl font-black">
-              <Link to="/popular">
-                <Bell className="h-4 w-4 text-primary" /> Popular
-              </Link>
-            </Button>
-          </div>
         </div>
       </div>
     </nav>
