@@ -96,6 +96,12 @@ export const bookService = {
   getNewArrivals: async (): Promise<ApiResponse<BookResponse[]>> => {
     return api.get('/books/new-arrivals');
   },
+  getFeatured: async (): Promise<ApiResponse<BookResponse[]>> => {
+    return api.get('/books/featured');
+  },
+  setFeatured: async (id: number, featured: boolean, order: number): Promise<ApiResponse<BookResponse>> => {
+    return api.patch(`/books/${id}/feature`, null, { params: { featured, order } });
+  },
   getAvailability: async (id: number): Promise<ApiResponse<BookAvailabilityResponse>> => {
     return api.get(`/books/${id}/availability`);
   },

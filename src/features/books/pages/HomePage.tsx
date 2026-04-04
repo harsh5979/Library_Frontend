@@ -47,13 +47,13 @@ export function HomePage() {
               Discover, borrow, and manage your literary journey with the next-generation digital library experience. Seamlessly intuitive, beautifully designed.
             </p>
             
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Button size="lg" asChild className="h-14 px-8 text-lg font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all duration-300">
+            <div className="flex flex-row flex-wrap gap-4 pt-4">
+              <Button size="lg" asChild className="flex-1 sm:flex-none h-14 px-8 text-lg font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all duration-300">
                 <Link to="/search" className="gap-2">
                   Browse Catalog <ChevronRight className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild className="h-14 px-8 text-lg font-bold backdrop-blur-sm border-2 hover:bg-muted/50 transition-all duration-300 group">
+              <Button variant="outline" size="lg" asChild className="flex-1 sm:flex-none h-14 px-8 text-lg font-bold backdrop-blur-sm border-2 hover:bg-muted/50 transition-all duration-300 group">
                 <Link to="/search">
                   <Search className="h-5 w-5 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
                   Advanced Search
@@ -137,10 +137,10 @@ export function HomePage() {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
             {isTrendingLoading 
-              ? Array.from({ length: 5 }).map((_, i) => <BookSkeleton key={i} />)
-              : (trendingBooks?.data || []).slice(0, 5).map((book: any) => <BookCard key={book.id} book={book} />)
+              ? Array.from({ length: 4 }).map((_, i) => <BookSkeleton key={i} />)
+              : (trendingBooks?.data || []).slice(0, 4).map((book: any) => <BookCard key={book.id} book={book} />)
             }
           </div>
         </div>
@@ -178,10 +178,10 @@ function BookShelf({ title, subtitle, books, isLoading, icon }: { title: string,
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
         {isLoading 
-          ? Array.from({ length: 5 }).map((_, i) => <BookSkeleton key={i} />)
-          : books.slice(0, 5).map((book) => <BookCard key={book.id} book={book} />)
+          ? Array.from({ length: 4 }).map((_, i) => <BookSkeleton key={i} />)
+          : books.slice(0, 4).map((book) => <BookCard key={book.id} book={book} />)
         }
       </div>
     </section>

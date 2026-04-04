@@ -27,20 +27,13 @@ const subjects = [
   "Probability", "Human History", "Cosmos", "Mindset", "Wealth", "Evolution"
 ];
 
-const coverThemes = [
-  "technology", "books", "library", "minimalist", "science", "space", 
-  "abstract", "galaxy", "computer", "nature"
-];
-
 export const generateDynamicBook = (index: number) => {
   const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
   const subj = subjects[Math.floor(Math.random() * subjects.length)];
   const author = authors[Math.floor(Math.random() * authors.length)];
   const cat = categories[Math.floor(Math.random() * categories.length)];
   const pub = publishers[Math.floor(Math.random() * publishers.length)];
-  const theme = coverThemes[Math.floor(Math.random() * coverThemes.length)];
   
-  // Create a unique ISBN for each generated book
   const isbn = `978-${Math.floor(Math.random() * 1000000000).toString().padStart(10, '0')}`;
   
   return {

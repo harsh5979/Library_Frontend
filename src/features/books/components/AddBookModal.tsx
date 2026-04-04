@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select'
 import { bookService } from '../services/bookService'
 import type { BookRequest } from '../types'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 
 const bookSchema = z.object({
   title: z.string().min(2, "Title is required").max(200),
@@ -43,7 +43,7 @@ const bookSchema = z.object({
   category: z.string().min(1, "Category is required"),
   subject: z.string().max(100).optional(),
   description: z.string().optional(),
-  coverImageUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  coverImageUrl: z.string().optional(),
   language: z.string().max(30).optional(),
   totalPages: z.any().optional(),
 })
@@ -74,7 +74,6 @@ const CATEGORIES = [
 ]
 
 export function AddBookModal({ open, onOpenChange, onSuccess }: AddBookModalProps) {
-  const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<BookFormValues>({
@@ -108,10 +107,7 @@ export function AddBookModal({ open, onOpenChange, onSuccess }: AddBookModalProp
 
       const response = await bookService.createBook(payload)
       if (response.success) {
-        toast({
-          title: "Book Created",
-          description: `${values.title} has been added to the catalog.`,
-        })
+        toast.success(`${values.title} has been added to the catalog.`)
         form.reset()
         onOpenChange(false)
         onSuccess?.()
@@ -120,11 +116,7 @@ export function AddBookModal({ open, onOpenChange, onSuccess }: AddBookModalProp
       const errorMessage = error instanceof Error 
         ? (error as any).response?.data?.message || error.message 
         : "Something went wrong. Please try again."
-      toast({
-        variant: "destructive",
-        title: "Creation Failed",
-        description: errorMessage,
-      })
+      toast.error(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
@@ -292,11 +284,21 @@ export function AddBookModal({ open, onOpenChange, onSuccess }: AddBookModalProp
                   control={form.control}
                   name="coverImageUrl"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-black text-[10px] uppercase tracking-widest text-muted-foreground">Cover URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." className="h-12 rounded-xl font-bold bg-background/50" {...field} />
-                      </FormControl>
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="font-black text-[10px] uppercase tracking-widest text-muted-foreground">Cover Image URL</FormLabel>
+                      <div className="flex gap-3 items-start">
+                        <FormControl>
+                          <Input placeholder="https://..." className="h-12 rounded-xl font-bold bg-background/50" {...field} />
+                        </FormControl>
+                        {field.value && (
+                          <img
+                            src={field.value}
+                            alt="preview"
+                            className="h-12 w-9 rounded object-cover shrink-0 border"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                          />
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}

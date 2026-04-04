@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Dialog as SheetPrimitive } from "radix-ui"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -73,7 +73,7 @@ function SheetContent({
             <Button
               variant="ghost"
               className="absolute top-3 right-3"
-              size="icon-sm"
+              size="icon"
             >
               <XIcon
               />

@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { ArrowRight, Lock, Mail, Globe, Fingerprint } from 'lucide-react'
 import type { User } from '@/types/user'
 
@@ -29,7 +29,6 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const { toast } = useToast()
   const { setAuth } = useAuth()
 
   const from = location.state?.from?.pathname || '/'
@@ -65,18 +64,11 @@ export function LoginForm() {
         
         setAuth(user, accessToken, refreshToken)
         
-        toast({
-          title: "Welcome back!",
-          description: `Successfully signed in as ${fullName}.`,
-        })
+        toast.success(`Welcome back, ${fullName}!`)
         navigate(from, { replace: true })
       }
     } catch (error: any) {
-      toast({
-        title: "Authentication Error",
-        description: error.message || "Invalid email or password.",
-        variant: "destructive",
-      })
+      toast.error(error.message || "Invalid email or password.")
     } finally {
       setIsLoading(false)
     }

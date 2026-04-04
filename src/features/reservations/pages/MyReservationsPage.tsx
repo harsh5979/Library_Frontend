@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import {
   Calendar,
   Clock,
@@ -24,7 +24,6 @@ import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
 export function MyReservationsPage() {
-  const { toast } = useToast()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'all' | ReservationStatus>('all')
   const { data: reservationsData, isLoading } = useQuery({
@@ -39,17 +38,10 @@ export function MyReservationsPage() {
     mutationFn: (id: number) => reservationService.cancel(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-reservations'] })
-      toast({
-        title: 'Reservation Cancelled',
-        description: 'Your reservation has been removed.',
-      })
+      toast.success('Your reservation has been removed.')
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Failed to cancel',
-        description: error.message || 'An unexpected error occurred.',
-        variant: 'destructive',
-      })
+      toast.error(error.message || 'An unexpected error occurred.')
     },
   })
 

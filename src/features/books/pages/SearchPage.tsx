@@ -1,210 +1,238 @@
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { bookService } from '../services/bookService'
-import { BookCard } from '../components/BookCard'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Search, BookOpen, AlertCircle, TrendingUp, Sparkles, SlidersHorizontal, ArrowUpDown } from 'lucide-react'
-import { useState } from 'react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Search, BookOpen, Star, ChevronRight, Filter } from 'lucide-react'
+import { LazyImage } from '@/components/ui/lazy-image'
+import { useState, useMemo } from 'react'
+import type { BookResponse } from '../types'
+import { cn } from '@/lib/utils'
 
 export function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
   const [inputValue, setInputValue] = useState(query)
+  const [category, setCategory] = useState('All')
   const [sortBy, setSortBy] = useState('relevance')
 
-  const { data: searchResults, isLoading, error } = useQuery({
-    queryKey: ['search', query, sortBy],
-    queryFn: () => {
-      if (!query.trim()) {
-        return bookService.getAll({
-          sortBy: sortBy === 'title' ? 'title' : 'createdAt',
-          sortDir: sortBy === 'title' ? 'asc' : 'desc',
-        })
-      }
-
-      return bookService.search(query)
-    },
-    enabled: true,
+  // Fetch all books once to derive available categories
+  const { data: allData } = useQuery({
+    queryKey: ['all-books-categories'],
+    queryFn: () => bookService.getAll({ size: 200 }),
+    staleTime: 1000 * 60 * 5,
   })
 
-  const { data: recommendations } = useQuery({
-    queryKey: ['recommendations'],
-    queryFn: () => bookService.getPopular(),
-    enabled: !!error || (!isLoading && searchResults?.data?.content?.length === 0),
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>()
+    allData?.data?.content?.forEach((b: BookResponse) => { if (b.category) cats.add(b.category) })
+    return ['All', ...Array.from(cats).sort()]
+  }, [allData])
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['search', query, sortBy, category],
+    queryFn: () =>
+      bookService.getAll({
+        title: query || undefined,
+        category: category !== 'All' ? category : undefined,
+        sortBy: sortBy === 'title' ? 'title' : 'createdAt',
+        sortDir: sortBy === 'title' ? 'asc' : 'desc',
+        size: 20,
+      }),
   })
 
-  const books = searchResults?.data?.content || []
-  const totalResults = searchResults?.data?.totalElements || 0
+  const books: BookResponse[] = data?.data?.content || []
+  const total = data?.data?.totalElements || 0
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    const trimmedQuery = inputValue.trim()
-    setSearchParams(trimmedQuery ? { q: trimmedQuery } : {})
+    setSearchParams(inputValue.trim() ? { q: inputValue.trim() } : {})
   }
 
   return (
-    <div className="space-y-12 pb-24 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 -z-10 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] opacity-10 -translate-y-1/2 translate-x-1/3" />
-      <div className="absolute top-1/2 left-0 -z-10 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-[120px] opacity-10 -translate-x-1/2" />
-
-      {/* Header & Search Bar Section */}
-      <section className="relative pt-12 space-y-8 container mx-auto px-4">
-        <div className="space-y-4 text-center max-w-2xl mx-auto animate-in fade-in slide-in-from-top-4 duration-700">
-           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider ring-1 ring-primary/20">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Deep Discovery Engines</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">Explore the Collection</h1>
-            <p className="text-muted-foreground/80 font-medium">
-              Searching across 12,000+ physics journals, fiction classics, and historical archives.
-            </p>
-        </div>
-
-        <div className="max-w-3xl mx-auto relative group animate-in fade-in zoom-in-95 duration-700 delay-100">
-          <form onSubmit={handleSearch} className="flex gap-3 p-1.5 rounded-2xl bg-background shadow-2xl shadow-primary/5 ring-1 ring-primary/10 transition-all focus-within:ring-primary/30 focus-within:shadow-primary/10">
+    <div className="min-h-screen">
+      {/* Search header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Search titles, authors, ISBNs, or keywords..."
-                className="h-14 pl-12 border-none bg-transparent text-lg font-medium focus-visible:ring-0 placeholder:text-muted-foreground/50"
+                placeholder="Search by title, author, ISBN..."
+                className="pl-10 h-10 bg-white border-gray-300"
               />
             </div>
-            <Button type="submit" className="h-14 px-8 text-lg font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            <Button type="submit" className="h-10 px-6 bg-primary hover:bg-primary/90">
               Search
             </Button>
           </form>
         </div>
+      </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-4 animate-in fade-in duration-1000">
-          <Badge variant="outline" className="px-4 py-1.5 rounded-full border bg-muted/30 cursor-pointer hover:bg-primary/5 hover:border-primary/20 transition-all font-bold">Physics</Badge>
-          <Badge variant="outline" className="px-4 py-1.5 rounded-full border bg-muted/30 cursor-pointer hover:bg-primary/5 hover:border-primary/20 transition-all font-bold">Literature</Badge>
-          <Badge variant="outline" className="px-4 py-1.5 rounded-full border bg-muted/30 cursor-pointer hover:bg-primary/5 hover:border-primary/20 transition-all font-bold">Scientific Journals</Badge>
-          <Badge variant="outline" className="px-4 py-1.5 rounded-full border bg-muted/30 cursor-pointer hover:bg-primary/5 hover:border-primary/20 transition-all font-bold">History</Badge>
-        </div>
-      </section>
-
-      {/* Results Section */}
-      <section className="container mx-auto px-4 space-y-8 min-h-[50vh]">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 border-b pb-6 border-border/50">
-          <div className="flex items-center gap-3">
-             <div className="p-2 rounded-xl bg-primary/10 shadow-sm text-primary">
-               <BookOpen className="h-6 w-6" />
-             </div>
-             <div>
-               <h2 className="text-2xl font-black tracking-tight leading-none">
-                 {isLoading ? "Searching Collection..." : query ? `Results for "${query}"` : "Global Collection"}
-               </h2>
-               <p className="text-sm text-muted-foreground font-medium mt-1">
-                 {!isLoading && totalResults} resources found matching your criteria.
-               </p>
-             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-11 px-4 gap-2 font-bold border-2 hover:bg-muted/50 transition-colors">
-                  <ArrowUpDown className="h-4 w-4" />
-                  Sort: <span className="text-primary">{sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl">
-                <DropdownMenuLabel>Sort Preference</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setSortBy('relevance')} className="cursor-pointer font-bold">Relevance</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('newest')} className="cursor-pointer font-bold">Newest First</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('rating')} className="cursor-pointer font-bold">High Rating</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('title')} className="cursor-pointer font-bold">Title (A-Z)</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button variant="outline" className="h-11 px-4 gap-2 font-bold border-2 hover:bg-muted/50 transition-colors">
-              <SlidersHorizontal className="h-4 w-4" />
-              Advanced Filters
-            </Button>
-          </div>
-        </div>
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-            {Array.from({ length: 10 }).map((_, i) => <SearchSkeleton key={i} />)}
-          </div>
-        )}
-
-        {/* Error/Empty State */}
-        {!isLoading && (books.length === 0 || error) && (
-          <div className="flex flex-col items-center justify-center py-24 space-y-6 text-center animate-in fade-in zoom-in-95 duration-500">
-            <div className="p-6 rounded-full bg-muted/30">
-              <AlertCircle className="h-16 w-16 text-muted-foreground opacity-30" />
+      <div className="px-4 py-6 flex flex-col md:flex-row gap-6 max-w-6xl mx-auto w-full">
+        {/* Sidebar filters */}
+        <aside className="hidden md:block w-52 shrink-0">
+          <div className="sticky top-[73px] space-y-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <Filter className="size-4" /> Category
+            </h3>
+            <div className="space-y-1">
+              {availableCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={cn(
+                    'w-full text-left text-sm px-3 py-1.5 rounded-md transition-colors',
+                    category === cat
+                      ? 'bg-primary text-white font-medium'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
-            <div className="space-y-2">
-              <h3 className="text-3xl font-black">No matches found</h3>
-              <p className="text-muted-foreground max-w-md mx-auto font-medium">
-                We couldn't find any resources matching your search. Try different keywords or browse our recommendations below.
-              </p>
-            </div>
-            <Button 
-              onClick={() => { setInputValue(''); setSearchParams({}); }} 
-              variant="outline" 
-              className="h-12 px-6 font-black border-2 group"
-            >
-              Clear Search Query
-            </Button>
           </div>
-        )}
+        </aside>
 
-        {/* Results Grid */}
-        {!isLoading && books.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 animate-in fade-in duration-1000">
-            {books.map((book) => (
-              <BookCard key={book.id} book={book} />
+        {/* Results */}
+        <div className="flex-1 space-y-4">
+          {/* Results header — count + sort always in one row */}
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm text-gray-500 truncate">
+              {isLoading ? 'Searching...' : (
+                <><span className="font-semibold text-gray-900">{total.toLocaleString()}</span> results
+                {category !== 'All' && <> · <span className="font-semibold text-gray-900">{category}</span></>}</>
+              )}
+            </p>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="h-8 w-32 text-xs bg-white border-gray-300 shrink-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="relevance">Relevance</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="title">Title A–Z</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Mobile category pills — horizontal scroll, no visible scrollbar */}
+          <div className="flex gap-2 overflow-x-auto pb-1 md:hidden scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {availableCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={cn(
+                  'shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap',
+                  category === cat
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'
+                )}
+              >
+                {cat}
+              </button>
             ))}
           </div>
-        )}
 
-        {/* Recommendations Section (only shown if empty or error) */}
-        {!isLoading && (books.length === 0 || error) && recommendations?.data && (
-           <div className="pt-24 space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
-                  <TrendingUp className="h-6 w-6" />
-                </div>
-                <h2 className="text-3xl font-black tracking-tight">You might also like</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-                {recommendations.data.slice(0, 5).map((book) => (
-                  <BookCard key={book.id} book={book} />
-                ))}
-              </div>
-           </div>
-        )}
-      </section>
+          {/* Book list */}
+          {isLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 6 }).map((_, i) => <BookRowSkeleton key={i} />)}
+            </div>
+          ) : books.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <BookOpen className="size-12 text-gray-300 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-700">No books found</h3>
+              <p className="text-sm text-gray-400 mt-1">Try different keywords or clear the filters</p>
+              <Button variant="outline" className="mt-4" onClick={() => { setInputValue(''); setCategory('All'); setSearchParams({}); }}>
+                Clear search
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {books.map((book) => <BookRow key={book.id} book={book} />)}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
 
-function SearchSkeleton() {
+function BookRow({ book }: { book: BookResponse }) {
   return (
-    <div className="space-y-4">
-      <Skeleton className="aspect-3/4 w-full rounded-2xl" />
-      <div className="space-y-2">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 flex gap-3 sm:gap-4 hover:shadow-sm transition-shadow">
+      {/* Cover */}
+      <div className="w-14 sm:w-16 h-20 sm:h-24 rounded shrink-0 overflow-hidden">
+        <LazyImage
+          src={book.coverImageUrl || `https://images.unsplash.com/photo-1543005152-84524823467f?w=80&h=120&fit=crop`}
+          alt={book.title}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0 space-y-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <Link to={`/books/${book.id}`} className="font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-2 sm:line-clamp-1 text-sm sm:text-base">
+              {book.title}
+            </Link>
+            <p className="text-xs sm:text-sm text-gray-500">by <span className="text-gray-700 font-medium">{book.author}</span></p>
+          </div>
+          <Badge
+            variant="outline"
+            className={cn(
+              'shrink-0 text-xs whitespace-nowrap',
+              book.availableCopies > 0
+                ? 'border-emerald-200 text-emerald-700 bg-emerald-50'
+                : 'border-red-200 text-red-600 bg-red-50'
+            )}
+          >
+            {book.availableCopies > 0 ? `${book.availableCopies} avail.` : 'Unavailable'}
+          </Badge>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <Star className="size-3 fill-amber-400 text-amber-400" />
+            <span className="font-medium text-gray-700">{(book.averageRating || 0).toFixed(1)}</span>
+          </div>
+          <Badge variant="secondary" className="text-xs py-0 h-5">{book.category}</Badge>
+          {book.year && <span>{book.year}</span>}
+          {book.publisher && <span className="truncate max-w-[100px] hidden sm:inline">{book.publisher}</span>}
+        </div>
+
+        {book.description && (
+          <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 leading-relaxed hidden sm:block">{book.description}</p>
+        )}
+
+        <div className="flex items-center gap-2 pt-1">
+          <Button size="sm" className="h-7 text-xs bg-primary hover:bg-primary/90" asChild>
+            <Link to={`/books/${book.id}`}>View details <ChevronRight className="size-3 ml-1" /></Link>
+          </Button>
+          <span className="text-xs text-gray-400 font-mono hidden sm:inline">ISBN: {book.isbn}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BookRowSkeleton() {
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4 flex gap-4">
+      <Skeleton className="w-16 h-24 rounded shrink-0" />
+      <div className="flex-1 space-y-2">
         <Skeleton className="h-5 w-2/3" />
-        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-4 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
       </div>
     </div>
   )

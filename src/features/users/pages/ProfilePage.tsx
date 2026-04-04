@@ -25,14 +25,13 @@ import {
   Library,
   AlertCircle
 } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Link, useNavigate } from 'react-router-dom'
 
 export function ProfilePage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { toast } = useToast()
   const { logout } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState<Partial<User>>({})
@@ -48,18 +47,11 @@ export function ProfilePage() {
       if (response.success) {
         queryClient.invalidateQueries({ queryKey: ['profile'] })
         setIsEditing(false)
-        toast({
-          title: "Profile Updated",
-          description: "Your information has been saved successfully.",
-        })
+        toast.success("Your information has been saved successfully.")
       }
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
-      toast({
-        title: "Update Failed",
-        description: error.response?.data?.message || "An error occurred while updating.",
-        variant: "destructive",
-      })
+      toast.error(error.response?.data?.message || "An error occurred while updating.")
     }
   })
 

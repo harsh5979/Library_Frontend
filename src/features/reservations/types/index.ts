@@ -1,4 +1,4 @@
-import type { PagedResponse } from '@/types/api';
+import type { PageResponse } from '@/types/api';
 
 export type ReservationStatus = 
   | 'PENDING'
@@ -8,7 +8,6 @@ export type ReservationStatus =
   | 'CANCELLED'
   | 'EXPIRED';
 
-// Add a constant for usage in logic if needed
 export const RESERVATION_STATUS = {
   PENDING: 'PENDING' as const,
   APPROVED: 'APPROVED' as const,
@@ -31,7 +30,8 @@ export interface ReservationResponse {
 
 export interface CreateReservationRequest {
   bookId: number;
-  userId?: number; // Usually handled by backend from token
+  userId?: number;
 }
 
-export type ReservationPagedResponse = PagedResponse<ReservationResponse>;
+// Backend PageResponse uses 'page'/'size' (not 'pageNumber'/'pageSize')
+export type ReservationPagedResponse = PageResponse<ReservationResponse>;

@@ -4,7 +4,7 @@ import type { ApiResponse } from '@/types/api'
 import type { AuthResponse } from '@/types/auth'
 
 export const authService = {
-  login: async (data: LoginRequest): Promise<AuthResponse> => {
+  login: async (data: LoginRequest): Promise<ApiResponse<AuthResponse>> => {
     return api.post('/auth/login', data)
   },
   register: async (data: RegisterRequest): Promise<ApiResponse<AuthResponse>> => {

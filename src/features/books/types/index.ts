@@ -4,17 +4,21 @@ export interface BookResponse {
   author: string;
   isbn: string;
   publisher: string;
-  publicationYear: number;
+  edition: string;
+  year: number;
   category: string;
   subject: string;
   description: string;
-  coverImage: string;
-  location: string;
+  coverImageUrl: string;
+  language: string;
+  totalPages: number;
   totalCopies: number;
   availableCopies: number;
   averageRating: number;
+  reviewCount: number;
+  isFeatured: boolean;
+  featuredOrder: number;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface BookRequest {
@@ -65,5 +69,5 @@ export interface ReviewResponse {
   userName: string;
   rating: number;
   reviewText: string;
-  reviewDate: string;
+  createdAt: string;
 }

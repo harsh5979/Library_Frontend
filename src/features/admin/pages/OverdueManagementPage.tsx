@@ -24,12 +24,11 @@ import {
 } from '@/components/ui/table'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 
 export function OverdueManagementPage() {
   const queryClient = useQueryClient()
-  const { toast } = useToast()
 
   const { data: overdueData, isLoading } = useQuery({
     queryKey: ['overdue-management'],
@@ -41,7 +40,7 @@ export function OverdueManagementPage() {
      mutationFn: (id: number) => borrowService.markAsLost(id),
      onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['overdue-management'] })
-       toast({ title: "Inventory Updated", description: "Item has been flagged as lost and replacement procedures initiated." })
+       toast.success("Item has been flagged as lost and replacement procedures initiated.")
      }
   })
 

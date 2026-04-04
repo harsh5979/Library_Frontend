@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { authService } from '../services/authService'
+import { useAuth } from '@/store/useAuth'
 import { branchService, type BranchResponse } from '@/features/books/services/branchService'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +17,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { ArrowRight, Mail, Lock, User as UserIcon, Phone, Briefcase, Hash, GraduationCap, Building2 } from 'lucide-react'
 import {
   Select,
@@ -47,7 +48,7 @@ export function RegisterForm() {
   const [branches, setBranches] = useState<BranchResponse[]>([])
   const [isFetchingBranches, setIsFetchingBranches] = useState(false)
   const navigate = useNavigate()
-  const { toast } = useToast()
+  const { setAuth } = useAuth()
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -91,27 +92,22 @@ export function RegisterForm() {
     setIsLoading(true)
     try {
       const { confirmPassword, branchId, ...rest } = values
-      
-      const payload = {
-        ...rest,
-        branchId: branchId ? Number(branchId) : undefined
-      }
-      
+      const payload = { ...rest, branchId: branchId ? Number(branchId) : undefined }
+
       const response = await authService.register(payload as any)
-      
+
       if (response.success) {
-        toast({
-          title: "Registration Successful!",
-          description: "Please check your email to verify your account.",
-        })
-        navigate('/login')
+        const { accessToken, refreshToken, userId, fullName, email, role } = response.data
+        setAuth(
+          { id: userId, username: fullName, fullName, email, role, profileImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`, isActive: true, isEmailVerified: false, createdAt: new Date().toISOString(), memberSince: new Date().toISOString() },
+          accessToken,
+          refreshToken
+        )
+        toast.success(`Account created. Please verify your email, ${fullName}.`)
+        navigate('/')
       }
     } catch (error: any) {
-      toast({
-        title: "Registration Error",
-        description: error.message || "Something went wrong. Please try again.",
-        variant: "destructive",
-      })
+      toast.error(error.message || 'Something went wrong.')
     } finally {
       setIsLoading(false)
     }

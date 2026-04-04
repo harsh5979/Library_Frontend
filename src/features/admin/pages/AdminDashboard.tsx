@@ -6,32 +6,12 @@ import { AddBookModal } from '@/features/books/components/AddBookModal'
 import { borrowService, type TransactionResponse } from '@/features/borrowing/services/borrowService'
 import { type PopularBook } from '../types'
 import { cn } from '@/lib/utils'
-import { 
-  BarChart3, 
-  Users, 
-  BookOpen, 
-  AlertTriangle, 
-  TrendingUp, 
-  Package,
-  Plus,
-  ArrowRight,
-  DollarSign,
-  Clock
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Users, BookOpen, AlertTriangle, TrendingUp, Package, Plus, ArrowRight, Clock } from 'lucide-react'
+// import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Progress } from '@/components/ui/progress'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function AdminDashboard() {
   const navigate = useNavigate()
@@ -55,196 +35,102 @@ export function AdminDashboard() {
   const stats = statsData?.data
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <Badge variant="secondary" className="px-3 py-1 rounded-full font-black tracking-widest bg-primary/10 text-primary">
-            ADMINISTRATIVE PANEL
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter">
-            Library Intelligence
-          </h1>
-          <p className="text-muted-foreground font-medium text-lg">Real-time oversight of your library network ecosystem.</p>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Real-time overview of your library.</p>
         </div>
-        <div className="flex gap-3">
-          <Button 
-            onClick={() => setIsAddBookOpen(true)}
-            className="h-12 px-6 font-black rounded-xl shadow-xl shadow-primary/20 bg-linear-to-r from-primary to-blue-600 border-none hover:scale-[1.02] active:scale-[0.98] transition-all"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Add New Book
-          </Button>
-          <Button variant="outline" className="h-12 px-6 font-black rounded-xl border-2 hover:bg-muted/50 transition-colors">
-            Generate Report
-          </Button>
-        </div>
+        <Button
+          onClick={() => setIsAddBookOpen(true)}
+          className="h-10 px-5 font-bold rounded-xl bg-primary hover:bg-primary/90 w-fit"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Add Book
+        </Button>
       </div>
 
-      <AddBookModal 
-        open={isAddBookOpen} 
-        onOpenChange={setIsAddBookOpen} 
-        onSuccess={() => refetchStats()} 
+      <AddBookModal
+        open={isAddBookOpen}
+        onOpenChange={setIsAddBookOpen}
+        onSuccess={() => refetchStats()}
       />
 
-      {/* Primary KPI Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <StatCard 
-          icon={<Package className="text-blue-500" />} 
-          label="Catalog Size" 
-          value={stats?.totalBooks} 
-          subValue={`${stats?.availableBooks} units available`}
-          loading={isStatsLoading}
-          trend="+12 this month"
-          onClick={() => navigate('/admin/books')}
-        />
-        <StatCard 
-          icon={<Users className="text-emerald-500" />} 
-          label="Active Community" 
-          value={stats?.totalMembers} 
-          subValue="Registered individuals"
-          loading={isStatsLoading}
-          trend="+5.4% YoY"
-          onClick={() => navigate('/admin/users')}
-        />
-        <StatCard 
-          icon={<BookOpen className="text-amber-500" />} 
-          label="Live Loans" 
-          value={stats?.activeBorrowings} 
-          subValue="Physical items out"
-          loading={isStatsLoading}
-          trend="82% Turnover"
-          onClick={() => navigate('/admin/overdue')}
-        />
-        <StatCard 
-          icon={<Clock className="text-primary" />} 
-          label="Hold Queue" 
-          value={0} 
-          subValue="Student reservations"
-          loading={isStatsLoading}
-          trend="Live Queue"
-          onClick={() => navigate('/admin/reservations')}
-        />
-        <StatCard 
-          icon={<AlertTriangle className="text-rose-500" />} 
-          label="Overdue Risk" 
-          value={stats?.overdueBooks} 
-          subValue="Immediate attention"
-          loading={isStatsLoading}
-          destructive={Number(stats?.overdueBooks) > 0}
-          trend={`${stats?.overdueBooks} items delayed`}
-          onClick={() => navigate('/admin/overdue')}
-        />
+      {/* KPI Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <StatCard icon={<Package className="text-blue-500" />} label="Total Books" value={stats?.totalBooks} subValue={`${stats?.availableBooks} available`} loading={isStatsLoading} onClick={() => navigate('/admin/books')} />
+        <StatCard icon={<Users className="text-emerald-500" />} label="Members" value={stats?.totalMembers} subValue="Registered" loading={isStatsLoading} onClick={() => navigate('/admin/users')} />
+        <StatCard icon={<BookOpen className="text-amber-500" />} label="Active Loans" value={stats?.activeBorrowings} subValue="Currently out" loading={isStatsLoading} onClick={() => navigate('/admin/borrows')} />
+        <StatCard icon={<Clock className="text-primary" />} label="Reservations" value={0} subValue="In queue" loading={isStatsLoading} onClick={() => navigate('/admin/reservations')} />
+        <StatCard icon={<AlertTriangle className="text-rose-500" />} label="Overdue" value={stats?.overdueBooks} subValue="Need attention" loading={isStatsLoading} destructive={Number(stats?.overdueBooks) > 0} onClick={() => navigate('/admin/overdue')} />
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 space-y-8">
-           <Tabs defaultValue="transactions" className="w-full">
-            <div className="flex items-center justify-between mb-4">
-              <TabsList className="bg-muted/30 p-1.5 rounded-2xl h-14 border-none ring-1 ring-primary/5">
-                <TabsTrigger value="transactions" className="rounded-xl px-8 font-black data-[state=active]:bg-background data-[state=active]:shadow-lg h-11">Transactions</TabsTrigger>
-                <TabsTrigger value="overdue" className="rounded-xl px-8 font-black data-[state=active]:bg-background data-[state=active]:shadow-lg h-11">Overdue Action</TabsTrigger>
-                <TabsTrigger value="inventory" className="rounded-xl px-8 font-black data-[state=active]:bg-background data-[state=active]:shadow-lg h-11">Inventory</TabsTrigger>
-              </TabsList>
-              <Button variant="ghost" size="sm" className="font-bold gap-1 text-primary hover:bg-primary/5">
-                View Full Logs <ArrowRight className="h-4 w-4" />
-              </Button>
+      {/* Quick actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: 'Manage Books', path: '/admin/books', icon: <BookOpen className="h-4 w-4" /> },
+          { label: 'Reservations', path: '/admin/reservations', icon: <Clock className="h-4 w-4" /> },
+          { label: 'Borrows', path: '/admin/borrows', icon: <Package className="h-4 w-4" /> },
+          { label: 'Overdue', path: '/admin/overdue', icon: <AlertTriangle className="h-4 w-4" /> },
+        ].map(a => (
+          <Button key={a.path} variant="outline" className="h-12 gap-2 font-semibold rounded-xl border-gray-200 hover:border-primary/40 hover:bg-primary/5 justify-start px-4" onClick={() => navigate(a.path)}>
+            {a.icon}{a.label}
+          </Button>
+        ))}
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Recent Transactions */}
+        <div className="lg:col-span-2">
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
+              <h2 className="font-semibold text-gray-700 text-sm">Recent Transactions</h2>
+              <Button variant="ghost" size="sm" className="text-xs text-primary font-bold h-7" onClick={() => navigate('/admin/borrows')}>View all <ArrowRight className="h-3 w-3 ml-1" /></Button>
             </div>
-
-            <TabsContent value="transactions" className="mt-0">
-              <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-xl ring-1 ring-primary/5 rounded-3xl overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-muted/20">
-                    <TableRow className="border-none hover:bg-transparent">
-                      <TableHead className="font-black text-[10px] uppercase tracking-widest text-muted-foreground py-4">Borrower</TableHead>
-                      <TableHead className="font-black text-[10px] uppercase tracking-widest text-muted-foreground py-4">Book Title</TableHead>
-                      <TableHead className="font-black text-[10px] uppercase tracking-widest text-muted-foreground py-4">Issued On</TableHead>
-                      <TableHead className="font-black text-[10px] uppercase tracking-widest text-muted-foreground py-4">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentTransactionsData?.data?.content.map((tx: TransactionResponse) => (
-                      <TableRow key={tx.id} className="border-primary/5 hover:bg-primary/2 transition-colors group">
-                        <TableCell className="font-bold py-4">
-                          <p className="font-black group-hover:text-primary transition-colors">{tx.userName || 'Member ID: ' + tx.userId}</p>
-                          <p className="text-[10px] text-muted-foreground uppercase">{tx.id}</p>
-                        </TableCell>
-                        <TableCell className="font-bold max-w-[200px] truncate">{tx.bookTitle}</TableCell>
-                        <TableCell className="font-medium text-muted-foreground">{new Date(tx.issueDate).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className="rounded-lg font-black text-[10px] px-2 py-0.5">
-                            {tx.status}
-                          </Badge>
-                        </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="text-xs">Borrower</TableHead>
+                    <TableHead className="text-xs">Book</TableHead>
+                    <TableHead className="text-xs hidden sm:table-cell">Date</TableHead>
+                    <TableHead className="text-xs">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isStatsLoading
+                    ? Array.from({ length: 4 }).map((_, i) => <TableRow key={i}>{Array.from({ length: 4 }).map((_, j) => <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>)}</TableRow>)
+                    : recentTransactionsData?.data?.content?.map((tx: TransactionResponse) => (
+                      <TableRow key={tx.id} className="hover:bg-gray-50">
+                        <TableCell className="text-sm font-medium text-gray-900">{tx.userName}</TableCell>
+                        <TableCell className="text-sm text-gray-600 max-w-[140px] truncate">{tx.bookTitle}</TableCell>
+                        <TableCell className="text-xs text-gray-400 hidden sm:table-cell">{new Date(tx.issueDate).toLocaleDateString()}</TableCell>
+                        <TableCell><Badge variant="secondary" className="text-[10px] font-bold">{tx.status}</Badge></TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="overdue" className="mt-0">
-               <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-xl ring-1 ring-primary/5 rounded-3xl overflow-hidden p-6 text-center py-20">
-                  <AlertTriangle className="h-12 w-12 text-rose-500 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-xl font-black mb-1">Overdue Tracking</h3>
-                  <p className="text-muted-foreground font-medium mb-6">Review items that have exceeded their return grace period.</p>
-                  <Button onClick={() => navigate('/admin/overdue')} variant="outline" className="font-black border-2 rounded-xl">Initialize Enforcement Flow</Button>
-               </Card>
-            </TabsContent>
-          </Tabs>
+                    ))
+                  }
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </div>
 
-        <div className="lg:col-span-4 space-y-8">
-          <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-xl ring-1 ring-primary/5 rounded-3xl overflow-hidden h-fit">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-black flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-emerald-500" /> Hot Circulation
-              </CardTitle>
-              <CardDescription className="text-xs font-bold uppercase tracking-widest">Most borrowed titles this quarter</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               {popularBooksData?.data?.map((book: PopularBook, idx: number) => (
-                 <div key={idx} className="flex items-center gap-4 group cursor-pointer p-2 rounded-2xl hover:bg-muted/40 transition-all">
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-xs">
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-black text-sm truncate group-hover:text-primary transition-colors">{book.title}</p>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase">{book.author}</p>
-                    </div>
-                    <div className="text-right">
-                       <p className="font-black text-xs">{book.borrowCount}</p>
-                       <p className="text-[9px] font-bold text-muted-foreground uppercase">Loans</p>
-                    </div>
-                 </div>
-               ))}
-               <Button variant="ghost" className="w-full font-black text-xs gap-2 py-6 rounded-2xl border-2 border-dashed border-muted-foreground/20 hover:border-primary/20 hover:bg-primary/5">
-                 Expand Full Analytics <BarChart3 className="h-4 w-4" />
-               </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-xl ring-1 ring-primary/5 rounded-3xl overflow-hidden h-fit">
-            <CardHeader className="pb-4">
-               <CardTitle className="text-lg font-black flex items-center gap-2">
-                 <DollarSign className="h-5 w-5 text-emerald-500" /> Revenue Flow
-               </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-black uppercase tracking-widest">
-                  <span>Collected Fines</span>
-                  <span className="text-emerald-600">Rs. {stats?.totalFinesCollected}</span>
+        {/* Popular Books */}
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 border-b bg-gray-50">
+            <h2 className="font-semibold text-gray-700 text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-emerald-500" /> Popular Books</h2>
+          </div>
+          <div className="p-3 space-y-2">
+            {popularBooksData?.data?.map((book: PopularBook, idx: number) => (
+              <div key={idx} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
+                <span className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-black text-primary shrink-0">{idx + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{book.title}</p>
+                  <p className="text-xs text-gray-400 truncate">{book.author}</p>
                 </div>
-                <Progress value={75} className="h-2" />
+                <span className="text-xs font-bold text-gray-500 shrink-0">{book.borrowCount} loans</span>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-black uppercase tracking-widest">
-                  <span>Pending Dues</span>
-                  <span className="text-rose-500">Rs. {stats?.pendingFines}</span>
-                </div>
-                <Progress value={25} className="h-2 bg-rose-500/10 fill-rose-500" />
-              </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -258,54 +144,18 @@ interface StatCardProps {
   subValue?: string
   loading?: boolean
   destructive?: boolean
-  trend?: string
   onClick?: () => void
 }
 
-function StatCard({ 
-  icon, 
-  label, 
-  value, 
-  subValue, 
-  loading, 
-  destructive,
-  trend,
-  onClick
-}: StatCardProps) {
+function StatCard({ icon, label, value, subValue, loading, destructive, onClick }: StatCardProps) {
   return (
-    <Card 
-      onClick={onClick}
-      className={cn(
-        "border-none shadow-2xl bg-background/60 backdrop-blur-xl ring-1 ring-primary/5 rounded-3xl overflow-hidden group hover:scale-[1.02] transition-all duration-500",
-        onClick && "cursor-pointer hover:ring-primary/20",
-        destructive && "ring-rose-500/20"
-      )}
-    >
-      <CardContent className="p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="p-3.5 rounded-2xl bg-background shadow-xs group-hover:scale-110 transition-transform duration-500">
-            {icon}
-          </div>
-          <div className={cn(
-            "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md",
-            destructive ? "bg-rose-500/10 text-rose-600" : "bg-emerald-500/10 text-emerald-600"
-          )}>
-            {trend}
-          </div>
-        </div>
-        <div>
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">{label}</p>
-          {loading ? (
-            <Skeleton className="h-9 w-20" />
-          ) : (
-            <h3 className={cn(
-              "text-3xl font-black tracking-tighter",
-              destructive ? "text-rose-600" : "text-foreground"
-            )}>{value?.toLocaleString()}</h3>
-          )}
-          <p className="text-xs font-bold text-muted-foreground/60 mt-1">{subValue}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <div onClick={onClick} className={cn('bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary/40 hover:shadow-sm transition-all', destructive && 'border-red-200 bg-red-50/30')}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="p-2 rounded-lg bg-gray-50">{icon}</div>
+      </div>
+      {loading ? <Skeleton className="h-7 w-16 mb-1" /> : <p className={cn('text-2xl font-bold', destructive ? 'text-red-600' : 'text-gray-900')}>{value?.toLocaleString() ?? '—'}</p>}
+      <p className="text-xs font-semibold text-gray-500 mt-0.5">{label}</p>
+      {subValue && <p className="text-[10px] text-gray-400 mt-0.5">{subValue}</p>}
+    </div>
   )
 }

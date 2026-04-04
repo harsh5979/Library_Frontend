@@ -17,6 +17,8 @@ export interface Book {
   availableCopies: number;
   averageRating: number;
   reviewCount: number;
+  isFeatured?: boolean;
+  featuredOrder?: number;
   createdAt: string;
 }
 

@@ -12,18 +12,18 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   // Fetch data on the server concurrently for better performance
-  const [popularResponse, trendingResponse, newArrivalsResponse] = await Promise.all([
+  const [popularResponse, featuredResponse, newArrivalsResponse] = await Promise.all([
     bookService.getPopular().catch(() => ({ data: [] })),
-    bookService.getTrending().catch(() => ({ data: [] })),
+    bookService.getFeatured().catch(() => ({ data: [] })),
     bookService.getNewArrivals().catch(() => ({ data: [] }))
   ]);
 
   const popularBooks = popularResponse.data || [];
-  const trendingBooks = trendingResponse.data || [];
+  const featuredBooks = featuredResponse.data || [];
   const newArrivals = newArrivalsResponse.data || [];
 
   return (
-    <div className="flex flex-col gap-16 pb-24 relative overflow-hidden bg-black text-white selection:bg-primary/30">
+    <div className="flex flex-col gap-16 pb-24 relative overflow-hidden">
       {/* Hero Section: Cinematic Entry */}
       <HeroSection />
 
@@ -35,8 +35,8 @@ export default async function HomePage() {
         icon={<TrendingUp className="size-8 text-primary" />}
       />
 
-      {/* Trending Protocol Segment */}
-      <TrendingSection books={trendingBooks} />
+      {/* Trending Protocol Segment — admin-curated featured books */}
+      <TrendingSection books={featuredBooks} />
 
       {/* Arrival Cycle Component */}
       <div className="flex flex-col gap-16 md:gap-24">

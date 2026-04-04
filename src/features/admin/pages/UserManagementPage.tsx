@@ -37,13 +37,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 
 export function UserManagementPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<string | undefined>()
   const queryClient = useQueryClient()
-  const { toast } = useToast()
 
   const { data: usersData, isLoading } = useQuery({
     queryKey: ['users-list', searchTerm, roleFilter],
@@ -56,7 +55,7 @@ export function UserManagementPage() {
     mutationFn: (id: number) => userService.blockUser(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-list'] })
-      toast({ title: "User Restricted", description: "This user has been suspended from the library system." })
+      toast.success("This user has been suspended from the library system.")
     }
   })
 
@@ -64,7 +63,7 @@ export function UserManagementPage() {
     mutationFn: (id: number) => userService.unblockUser(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-list'] })
-      toast({ title: "Status Restored", description: "Full privileges have been reactivated for this user." })
+      toast.success("Full privileges have been reactivated for this user.")
     }
   })
 

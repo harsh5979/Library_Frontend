@@ -5,7 +5,6 @@ import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Toaster } from "@/components/ui/sonner";
-import { PageTransition } from "@/components/layout/page-transition";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -37,11 +36,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${syne.variable} ${plusJakarta.variable} font-sans antialiased bg-black text-white`}
+        className={`${syne.variable} ${plusJakarta.variable} font-sans antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem={false}
         >
           <Providers>

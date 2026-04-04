@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { Book, BookRequest } from "@/types/book";
+import type { Book, BookRequest } from "@/types/book";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -36,6 +36,12 @@ export const booksApi = {
 
   getNewArrivals: () =>
     api.get<ApiResponse<Book[]>>("/books/new-arrivals"),
+
+  getFeatured: () =>
+    api.get<ApiResponse<Book[]>>("/books/featured"),
+
+  setFeatured: (id: number, featured: boolean, order: number) =>
+    api.patch<ApiResponse<Book>>(`/books/${id}/feature`, null, { params: { featured, order } }),
 
   getByCategory: (category: string, page = 0, size = 10) =>
     api.get<ApiResponse<PagedResponse<Book>>>(`/books/category/${category}`, { params: { page, size } }),
