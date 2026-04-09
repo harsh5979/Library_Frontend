@@ -31,7 +31,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
-import { notificationService } from '@/features/notifications/services/notificationService'
+import { notificationService } from '@/features/users/services/notificationService'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function Navbar() {
@@ -44,7 +44,7 @@ export function Navbar() {
 
   const { data: notificationsData } = useQuery({
     queryKey: ['notifications'],
-    queryFn: () => notificationService.getMyNotifications(),
+    queryFn: () => notificationService.getMy(),
     enabled: isAuthenticated,
     refetchInterval: 30000,
   })
@@ -108,23 +108,15 @@ export function Navbar() {
               </span>
             </Link>
             {/* Nav links */}
-            <div className="hidden md:flex items-center gap-1 ml-4">
+            <div className="hidden md:flex items-center gap-1 ml-10">
               {[
                 { to: '/', label: 'Home' },
                 { to: '/search', label: 'Catalog' },
                 ...(isAuthenticated ? [{ to: '/my-books', label: 'My Books' }] : []),
-                ...(user && (user.role === 'LIBRARIAN' || user.role === 'SUPER_ADMIN')
-                  ? [{ 
-                      to: '/admin', 
-                      label: user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard' 
-                    }]
-                  : []),
               ].map(({ to, label }) => (
                 <Link key={to} to={to} className={cn(
-                  'px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap',
-                  pathname.startsWith(to) && to !== '/' ? 'text-primary bg-primary/10' : 
-                  pathname === to ? 'text-primary bg-primary/10' : 
-                  'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  'px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors',
+                  pathname === to ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 )}>{label}</Link>
               ))}
             </div>
@@ -216,15 +208,15 @@ export function Navbar() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="opacity-50" />
                     {[
-                      { label: 'Home',        to: '/',          icon: Home },
-                      { label: 'My Profile',  to: '/profile',   icon: User },
-                      { label: 'My Library',  to: '/my-books',  icon: Library },
+                      { label: 'Home', to: '/', icon: Home },
+                      { label: 'My Library', to: '/my-books', icon: Library },
+                      { label: 'My Profile', to: '/profile', icon: User },
                     ].map((item) => {
                       const isActive = pathname === item.to
                       return (
-                        <DropdownMenuItem 
-                          key={item.to} 
-                          onClick={() => navigate(item.to)} 
+                        <DropdownMenuItem
+                          key={item.to}
+                          onClick={() => navigate(item.to)}
                           className={cn(
                             "cursor-pointer gap-3 rounded-xl py-2.5 transition-all duration-200",
                             isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground focus:bg-muted"
@@ -236,19 +228,23 @@ export function Navbar() {
                       )
                     })}
 
-                    {(user.role === 'LIBRARIAN' || user.role === 'SUPER_ADMIN') && (
-                      <DropdownMenuItem 
-                        onClick={() => navigate('/admin')} 
+                    {(user?.role?.toUpperCase() === 'LIBRARIAN' || user?.role?.toUpperCase() === 'SUPER_ADMIN') && (
+                      <DropdownMenuItem
+                        onClick={() => navigate(user.role?.toUpperCase() === 'SUPER_ADMIN' ? '/admin' : '/librarian')}
                         className={cn(
                           "cursor-pointer gap-3 rounded-xl py-2.5 transition-all duration-200 mt-1",
-                          pathname.startsWith('/admin') 
-                            ? "bg-primary/10 text-primary focus:bg-primary/20 shadow-xs" 
+                          (pathname.startsWith('/admin') || pathname.startsWith('/librarian'))
+                            ? "bg-primary/10 text-primary focus:bg-primary/20 shadow-xs"
                             : "bg-primary/[0.03] text-primary/80 hover:bg-primary/10 focus:bg-primary/10 border border-primary/5"
                         )}
                       >
-                        <ShieldAlert className={cn("h-4 w-4", pathname.startsWith('/admin') ? "text-primary" : "text-primary/60")} />
-                        <span className={cn("text-xs transition-colors", pathname.startsWith('/admin') ? "font-black" : "font-bold")}>
-                          {user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard'}
+                        {user.role?.toUpperCase() === 'SUPER_ADMIN' ? (
+                          <ShieldAlert className={cn("h-4 w-4", pathname.startsWith('/admin') ? "text-primary" : "text-primary/60")} />
+                        ) : (
+                          <Library className={cn("h-4 w-4", pathname.startsWith('/librarian') ? "text-primary" : "text-primary/60")} />
+                        )}
+                        <span className={cn("text-xs transition-colors", (pathname.startsWith('/admin') || pathname.startsWith('/librarian')) ? "font-black" : "font-bold")}>
+                          {user.role?.toUpperCase() === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Librarian Panel'}
                         </span>
                       </DropdownMenuItem>
                     )}
@@ -310,19 +306,20 @@ export function Navbar() {
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
                 </div>
+                <Link to="/my-books" onClick={() => setIsMenuOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">📚 My Library</Link>
                 <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">👤 My Profile</Link>
-                {(user.role === 'LIBRARIAN' || user.role === 'SUPER_ADMIN') && (
-                  <Link 
-                    to="/admin" 
-                    onClick={() => setIsMenuOpen(false)} 
+                {(user?.role?.toUpperCase() === 'LIBRARIAN' || user?.role?.toUpperCase() === 'SUPER_ADMIN') && (
+                  <Link
+                    to={user.role?.toUpperCase() === 'SUPER_ADMIN' ? '/admin' : '/librarian'}
+                    onClick={() => setIsMenuOpen(false)}
                     className={cn(
                       "px-3 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200",
-                      pathname.startsWith('/admin') 
-                        ? "text-primary bg-primary/10 font-bold" 
+                      (pathname.startsWith('/admin') || pathname.startsWith('/librarian'))
+                        ? "text-primary bg-primary/10 font-bold"
                         : "text-primary/70 bg-primary/[0.03] hover:bg-primary/10 border border-primary/5"
                     )}
                   >
-                    🛡️ {user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard'}
+                    {user.role?.toUpperCase() === 'SUPER_ADMIN' ? '🛡️ Admin Dashboard' : '📚 Librarian Panel'}
                   </Link>
                 )}
                 <button onClick={() => { handleLogout(); setIsMenuOpen(false) }} className="px-3 py-2.5 text-sm font-semibold rounded-xl text-rose-500 hover:bg-rose-50 transition-colors text-left">🚪 Log out</button>
