@@ -4,6 +4,7 @@ import { useAuth } from '@/store/useAuth'
 import { bookService } from '../services/bookService'
 import { reservationService } from '@/features/reservations/services/reservationService'
 import { borrowService } from '@/features/borrowing/services/borrowService'
+import { transferService } from '@/features/transfers/services/transferService'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -27,12 +28,14 @@ import {
   Loader2,
   Copy,
   Check,
+  ArrowRightLeft,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { toast as sonnerToast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 import type { ReviewResponse } from '../types'
 
 export function BookDetailPage() {
@@ -44,6 +47,8 @@ export function BookDetailPage() {
   const [rating, setRating] = useState(5)
   const [shareOpen, setShareOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [transferOpen, setTransferOpen] = useState(false)
+  const [selectedSourceBranch, setSelectedSourceBranch] = useState<number | null>(null)
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
 
@@ -165,6 +170,29 @@ export function BookDetailPage() {
     }
   })
 
+  const transferMutation = useMutation({
+    mutationFn: (data: { from_branch_id: number, to_branch_id: number, notes?: string }) => {
+      if (!isAuthenticated) throw new Error('Login required')
+      if (!user?.id) throw new Error('User profile unavailable')
+
+      return transferService.create({
+        book_id: Number(id),
+        from_branch_id: data.from_branch_id,
+        to_branch_id: data.to_branch_id,
+        requested_by: user.id,
+        notes: data.notes
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-transfers'] })
+      setTransferOpen(false)
+      toast.success('Transfer request submitted successfully!')
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create transfer request.")
+    }
+  })
+
   if (isLoading) return <BookDetailSkeleton />
   if (error) return <ErrorMessage message={(error as Error).message} />
   if (!bookResponse?.data) return <ErrorMessage message="Book not found" />
@@ -260,6 +288,18 @@ export function BookDetailPage() {
               </>
             )}
 
+            {/* Inter-branch transfer */}
+            {(!user || user.role === 'STUDENT' || user.role === 'FACULTY') && book.availableCopies === 0 && availability && availability.availableCopiesAllBranches > 0 && (
+              <Button 
+                variant="outline" 
+                className="h-14 text-lg font-bold rounded-xl border-emerald-500 text-emerald-600 hover:bg-emerald-50 gap-2 shrink-0"
+                onClick={() => setTransferOpen(true)}
+              >
+                <ArrowRightLeft className="h-5 w-5" />
+                Transfer Request
+              </Button>
+            )}
+
             {/* Flow hint for students */}
             {(!user || user.role === 'STUDENT' || user.role === 'FACULTY') && !alreadyBorrowed && (
               <p className="text-xs text-muted-foreground text-center">
@@ -328,6 +368,65 @@ export function BookDetailPage() {
                       Facebook
                     </Button>
                   </a>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Transfer Request Dialog */}
+            <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+              <DialogContent className="max-w-md rounded-3xl p-6">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-black">Inter-Branch Transfer</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6 pt-4">
+                  <div className="space-y-2 text-sm">
+                    <p className="text-muted-foreground font-medium">This book is out of stock at your local branch. Request a copy from another campus library.</p>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Select Source Branch</label>
+                    <div className="grid gap-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                      {availability?.branches.filter((b: any) => b.availableCopies > 0).map((branch: any) => (
+                        <button
+                          key={branch.branchId}
+                          onClick={() => setSelectedSourceBranch(branch.branchId)}
+                          className={cn(
+                            "flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left group",
+                            selectedSourceBranch === branch.branchId 
+                              ? "border-primary bg-primary/5 shadow-md" 
+                              : "border-muted hover:border-primary/20 bg-muted/20"
+                          )}
+                        >
+                          <div>
+                            <p className={cn("font-black transition-colors", selectedSourceBranch === branch.branchId ? "text-primary" : "text-foreground")}>{branch.branchName}</p>
+                            <p className="text-[10px] text-muted-foreground font-bold">{branch.availableCopies} available · {branch.location}</p>
+                          </div>
+                          {selectedSourceBranch === branch.branchId ? (
+                             <CheckCircle2 className="h-5 w-5 text-primary animate-in zoom-in duration-300" />
+                          ) : (
+                             <Building className="h-5 w-5 text-muted-foreground/30 group-hover:text-primary/30 transition-colors" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <Button variant="outline" className="flex-1 rounded-xl h-12 font-black border-2" onClick={() => setTransferOpen(false)}>Cancel</Button>
+                    <Button 
+                      className="flex-1 rounded-xl h-12 font-black shadow-xl shadow-primary/20"
+                      disabled={!selectedSourceBranch || transferMutation.isPending}
+                      onClick={() => {
+                        transferMutation.mutate({ 
+                          from_branch_id: selectedSourceBranch!, 
+                          to_branch_id: 1, // Defaulting to main branch
+                          notes: `Relocation request for ${book.title}.`
+                        })
+                      }}
+                    >
+                      {transferMutation.isPending ? <Loader2 className="animate-spin mr-2" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
+                      Request Transfer
+                    </Button>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>

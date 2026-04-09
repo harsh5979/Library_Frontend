@@ -1,6 +1,7 @@
-import { Library, CheckCircle2, ShieldCheck } from 'lucide-react'
+import logo from '@/assets/logo.png'
 import { Link } from 'react-router-dom'
 import { RegisterForm } from '../components/RegisterForm'
+import { CheckCircle2, ShieldCheck } from 'lucide-react'
 
 export function RegisterPage() {
   return (
@@ -12,10 +13,10 @@ export function RegisterPage() {
       <div className="grid lg:grid-cols-2 gap-12 items-start max-w-6xl w-full">
         {/* Left Side: Info */}
         <div className="hidden lg:flex flex-col space-y-8 animate-in fade-in slide-in-from-left duration-700 sticky top-24">
-          <div className="space-y-4">
-            <Link to="/" className="inline-flex items-center gap-2 group">
-              <div className="bg-primary rounded-xl p-2 text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                <Library className="h-8 w-8" />
+          <div className="space-y-6">
+            <Link to="/" className="inline-flex items-center gap-4 group">
+              <div className="relative h-16 w-16 overflow-hidden rounded-2xl bg-primary/5 p-2 ring-1 ring-primary/10 group-hover:ring-primary/20 transition-all shadow-xl shadow-primary/5">
+                <img src={logo} alt="IOMD Library" className="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500" />
               </div>
               <span className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-linear-to-r from-primary to-blue-600">
                 IOMD Library

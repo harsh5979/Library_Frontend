@@ -20,6 +20,7 @@ const FALLBACK = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=40
 export function MyBooksPage() {
   const qc = useQueryClient()
   const [returningIds, setReturningIds] = useState<Set<number>>(new Set())
+  const [activeTab, setActiveTab] = useState('borrowed')
 
   const { data: borrowedRes, isLoading: l1 } = useQuery({
     queryKey: ['my-borrowed'],
@@ -95,19 +96,23 @@ export function MyBooksPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Active Loans', value: loans.length, color: 'text-primary' },
-          { label: 'Reservations', value: activeRes.length, color: 'text-amber-600' },
-          { label: 'Ready Pickup', value: reservations.filter(r => r.status === RESERVATION_STATUS.READY).length, color: 'text-emerald-600' },
-          { label: 'Returned', value: history.length, color: 'text-muted-foreground' },
+          { label: 'Active Loans', value: loans.length, color: 'text-primary', tab: 'borrowed' },
+          { label: 'Reservations', value: activeRes.length, color: 'text-amber-600', tab: 'reservations' },
+          { label: 'Ready Pickup', value: reservations.filter(r => r.status === RESERVATION_STATUS.READY).length, color: 'text-emerald-600', tab: 'reservations' },
+          { label: 'Returned', value: history.length, color: 'text-muted-foreground', tab: 'history' },
         ].map(s => (
-          <div key={s.label} className="rounded-2xl border bg-background/60 p-4 text-center shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{s.label}</p>
+          <div 
+            key={s.label} 
+            onClick={() => setActiveTab(s.tab)}
+            className="rounded-2xl border bg-background/60 p-4 text-center shadow-sm cursor-pointer hover:bg-muted/50 transition-colors group"
+          >
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">{s.label}</p>
             <p className={cn('text-3xl font-black mt-1', s.color)}>{s.value}</p>
           </div>
         ))}
       </div>
 
-      <Tabs defaultValue="borrowed">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full justify-start bg-muted/30 rounded-2xl p-1.5 h-auto gap-1 flex-wrap">
           <TabsTrigger value="borrowed" className="rounded-xl px-5 py-2 font-bold">
             Borrowed {loans.length > 0 && <span className="ml-1 bg-primary text-white text-[10px] rounded-full px-1.5">{loans.length}</span>}

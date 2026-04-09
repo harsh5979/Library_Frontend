@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/store/useAuth'
 import { useQuery } from '@tanstack/react-query'
 import { adminService } from '../services/adminService'
 import { AddBookModal } from '@/features/books/components/AddBookModal'
@@ -15,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function AdminDashboard() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [isAddBookOpen, setIsAddBookOpen] = useState(false)
   
   const { data: statsData, isLoading: isStatsLoading, refetch: refetchStats } = useQuery({
@@ -38,8 +40,12 @@ export function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Real-time overview of your library.</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {user?.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard'}
+          </h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Real-time overview of {user?.role === 'SUPER_ADMIN' ? 'system-wide' : 'your library'} operations.
+          </p>
         </div>
         <Button
           onClick={() => setIsAddBookOpen(true)}

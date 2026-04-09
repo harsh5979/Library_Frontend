@@ -1,4 +1,4 @@
-import { Library } from 'lucide-react'
+import logo from '@/assets/logo.png'
 import { Link } from 'react-router-dom'
 import { LoginForm } from '../components/LoginForm'
 
@@ -12,8 +12,8 @@ export function LoginPage() {
       <div className="max-w-md w-full space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2 group mb-4">
-            <div className="bg-primary rounded-xl p-2 text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-              <Library className="h-10 w-10" />
+            <div className="relative h-20 w-20 overflow-hidden rounded-2xl bg-primary/5 p-2 ring-1 ring-primary/10 group-hover:ring-primary/20 transition-all shadow-xl shadow-primary/5">
+              <img src={logo} alt="IOMD Library" className="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500" />
             </div>
           </Link>
           <h2 className="text-4xl font-black tracking-tight">Welcome Back</h2>

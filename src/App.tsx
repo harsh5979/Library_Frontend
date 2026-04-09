@@ -20,12 +20,20 @@ const SearchPage          = lazy(() => import('./features/books/pages/SearchPage
 const ProfilePage         = lazy(() => import('./features/users/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const MyBooksPage         = lazy(() => import('./features/users/pages/MyBooksPage').then(m => ({ default: m.MyBooksPage })))
 const MyReservationsPage  = lazy(() => import('./features/reservations/pages/MyReservationsPage').then(m => ({ default: m.MyReservationsPage })))
+const MyFinesPage         = lazy(() => import('./features/fines/pages/MyFinesPage').then(m => ({ default: m.MyFinesPage })))
 const AdminDashboard      = lazy(() => import('./features/admin/pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })))
 const AdminBooksPage      = lazy(() => import('./features/admin/pages/AdminBooksPage').then(m => ({ default: m.AdminBooksPage })))
 const UserManagementPage  = lazy(() => import('./features/admin/pages/UserManagementPage').then(m => ({ default: m.UserManagementPage })))
 const OverdueManagementPage     = lazy(() => import('./features/admin/pages/OverdueManagementPage').then(m => ({ default: m.OverdueManagementPage })))
 const ReservationManagementPage = lazy(() => import('./features/admin/pages/ReservationManagementPage').then(m => ({ default: m.ReservationManagementPage })))
 const BorrowManagementPage      = lazy(() => import('./features/admin/pages/BorrowManagementPage').then(m => ({ default: m.BorrowManagementPage })))
+const FineManagementPage        = lazy(() => import('./features/admin/pages/FineManagementPage').then(m => ({ default: m.FineManagementPage })))
+const TransferManagementPage    = lazy(() => import('./features/admin/pages/TransferManagementPage').then(m => ({ default: m.TransferManagementPage })))
+const AdminReportsPage         = lazy(() => import('./features/reports/pages/AdminReportsPage').then(m => ({ default: m.AdminReportsPage })))
+const ForgotPasswordPage       = lazy(() => import('./features/auth/pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
+const VerifyEmailPage         = lazy(() => import('./features/auth/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })))
+const ResetPasswordPage       = lazy(() => import('./features/auth/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
+const NotificationManagementPage = lazy(() => import('./features/notifications/pages/NotificationManagementPage').then(m => ({ default: m.NotificationManagementPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,8 +57,12 @@ function App() {
                 <Route path="/admin/books" element={<AdminBooksPage />} />
                 <Route path="/admin/users" element={<UserManagementPage />} />
                 <Route path="/admin/overdue" element={<OverdueManagementPage />} />
+                <Route path="/admin/notifications" element={<NotificationManagementPage />} />
                 <Route path="/admin/borrows" element={<BorrowManagementPage />} />
                 <Route path="/admin/reservations" element={<ReservationManagementPage />} />
+                <Route path="/admin/fines" element={<FineManagementPage />} />
+                <Route path="/admin/transfers" element={<TransferManagementPage />} />
+                <Route path="/admin/reports" element={<AdminReportsPage />} />
               </Route>
             </Route>
 
@@ -74,12 +86,16 @@ function PublicLayout() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/books/:id" element={<BookDetailPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/my-books" element={<MyBooksPage />} />
             <Route path="/my-reservations" element={<MyReservationsPage />} />
+            <Route path="/fines" element={<MyFinesPage />} />
           </Route>
           <Route path="/unauthorized" element={
             <div className="flex flex-col items-center justify-center py-20">

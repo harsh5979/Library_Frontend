@@ -111,7 +111,7 @@ export function Navbar() {
               </span>
             </Link>
             {/* Nav links */}
-            <div className="hidden md:flex items-center gap-1 ml-4">
+            <div className="hidden md:flex items-center gap-1 ml-10">
               {[
                 { to: '/', label: 'Home' },
                 { to: '/search', label: 'Catalog' },
@@ -211,15 +211,15 @@ export function Navbar() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="opacity-50" />
                     {[
-                      { label: 'Home',        to: '/',          icon: Home },
-                      { label: 'My Library',  to: '/my-books',  icon: Library },
-                      { label: 'My Profile',  to: '/profile',   icon: User },
+                      { label: 'Home', to: '/', icon: Home },
+                      { label: 'My Library', to: '/my-books', icon: Library },
+                      { label: 'My Profile', to: '/profile', icon: User },
                     ].map((item) => {
                       const isActive = pathname === item.to
                       return (
-                        <DropdownMenuItem 
-                          key={item.to} 
-                          onClick={() => navigate(item.to)} 
+                        <DropdownMenuItem
+                          key={item.to}
+                          onClick={() => navigate(item.to)}
                           className={cn(
                             "cursor-pointer gap-3 rounded-xl py-2.5 transition-all duration-200",
                             isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground focus:bg-muted"
@@ -232,12 +232,12 @@ export function Navbar() {
                     })}
 
                     {(user?.role?.toUpperCase() === 'LIBRARIAN' || user?.role?.toUpperCase() === 'SUPER_ADMIN') && (
-                      <DropdownMenuItem 
-                        onClick={() => navigate(user.role?.toUpperCase() === 'SUPER_ADMIN' ? '/admin' : '/librarian')} 
+                      <DropdownMenuItem
+                        onClick={() => navigate(user.role?.toUpperCase() === 'SUPER_ADMIN' ? '/admin' : '/librarian')}
                         className={cn(
                           "cursor-pointer gap-3 rounded-xl py-2.5 transition-all duration-200 mt-1",
                           (pathname.startsWith('/admin') || pathname.startsWith('/librarian'))
-                            ? "bg-primary/10 text-primary focus:bg-primary/20 shadow-xs" 
+                            ? "bg-primary/10 text-primary focus:bg-primary/20 shadow-xs"
                             : "bg-primary/[0.03] text-primary/80 hover:bg-primary/10 focus:bg-primary/10 border border-primary/5"
                         )}
                       >
@@ -312,13 +312,13 @@ export function Navbar() {
                 <Link to="/my-books" onClick={() => setIsMenuOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">📚 My Library</Link>
                 <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">👤 My Profile</Link>
                 {(user?.role?.toUpperCase() === 'LIBRARIAN' || user?.role?.toUpperCase() === 'SUPER_ADMIN') && (
-                  <Link 
-                    to={user.role?.toUpperCase() === 'SUPER_ADMIN' ? '/admin' : '/librarian'} 
-                    onClick={() => setIsMenuOpen(false)} 
+                  <Link
+                    to={user.role?.toUpperCase() === 'SUPER_ADMIN' ? '/admin' : '/librarian'}
+                    onClick={() => setIsMenuOpen(false)}
                     className={cn(
                       "px-3 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200",
                       (pathname.startsWith('/admin') || pathname.startsWith('/librarian'))
-                        ? "text-primary bg-primary/10 font-bold" 
+                        ? "text-primary bg-primary/10 font-bold"
                         : "text-primary/70 bg-primary/[0.03] hover:bg-primary/10 border border-primary/5"
                     )}
                   >

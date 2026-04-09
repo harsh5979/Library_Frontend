@@ -31,7 +31,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
-import { notificationService } from '@/features/users/services/notificationService'
+import { notificationService } from '@/features/notifications/services/notificationService'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function Navbar() {
@@ -44,7 +44,7 @@ export function Navbar() {
 
   const { data: notificationsData } = useQuery({
     queryKey: ['notifications'],
-    queryFn: () => notificationService.getMy(),
+    queryFn: () => notificationService.getMyNotifications(),
     enabled: isAuthenticated,
     refetchInterval: 30000,
   })
@@ -113,10 +113,18 @@ export function Navbar() {
                 { to: '/', label: 'Home' },
                 { to: '/search', label: 'Catalog' },
                 ...(isAuthenticated ? [{ to: '/my-books', label: 'My Books' }] : []),
+                ...(user && (user.role === 'LIBRARIAN' || user.role === 'SUPER_ADMIN')
+                  ? [{ 
+                      to: '/admin', 
+                      label: user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard' 
+                    }]
+                  : []),
               ].map(({ to, label }) => (
                 <Link key={to} to={to} className={cn(
-                  'px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors',
-                  pathname === to ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  'px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap',
+                  pathname.startsWith(to) && to !== '/' ? 'text-primary bg-primary/10' : 
+                  pathname === to ? 'text-primary bg-primary/10' : 
+                  'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 )}>{label}</Link>
               ))}
             </div>
@@ -240,7 +248,7 @@ export function Navbar() {
                       >
                         <ShieldAlert className={cn("h-4 w-4", pathname.startsWith('/admin') ? "text-primary" : "text-primary/60")} />
                         <span className={cn("text-xs transition-colors", pathname.startsWith('/admin') ? "font-black" : "font-bold")}>
-                          Admin Dashboard
+                          {user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard'}
                         </span>
                       </DropdownMenuItem>
                     )}
@@ -314,7 +322,7 @@ export function Navbar() {
                         : "text-primary/70 bg-primary/[0.03] hover:bg-primary/10 border border-primary/5"
                     )}
                   >
-                    🛡️ Admin Dashboard
+                    🛡️ {user.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard'}
                   </Link>
                 )}
                 <button onClick={() => { handleLogout(); setIsMenuOpen(false) }} className="px-3 py-2.5 text-sm font-semibold rounded-xl text-rose-500 hover:bg-rose-50 transition-colors text-left">🚪 Log out</button>

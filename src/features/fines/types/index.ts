@@ -10,6 +10,8 @@ export interface FineResponse {
   paid_amount: number
   status: string
   paid_at?: string | null
+  book_title: string
+  user_name: string
   created_at: string
 }
 
