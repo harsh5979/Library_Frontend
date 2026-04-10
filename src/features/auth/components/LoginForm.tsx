@@ -45,10 +45,10 @@ export function LoginForm() {
     setIsLoading(true)
     try {
       const response = await authService.login(values)
-      
+
       if (response.success) {
         const { accessToken, refreshToken, userId, fullName, email, role } = response.data
-        
+
         const user: User = {
           id: userId,
           username: fullName,
@@ -61,9 +61,9 @@ export function LoginForm() {
           createdAt: new Date().toISOString(),
           memberSince: new Date().toISOString(),
         }
-        
+
         setAuth(user, accessToken, refreshToken)
-        
+
         toast.success(`Welcome back, ${fullName}!`)
         navigate(from, { replace: true })
       }
@@ -127,7 +127,7 @@ export function LoginForm() {
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </form>
-        </Form>
+        </Form >
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -139,9 +139,9 @@ export function LoginForm() {
         </div>
 
         <div className="space-y-4">
-          <Button 
-            variant="outline" 
-            className="w-full h-12 font-bold border-2 hover:bg-white hover:border-gray-200 transition-all duration-300 shadow-sm flex items-center justify-center gap-3 active:scale-[0.98] group" 
+          <Button
+            variant="outline"
+            className="w-full h-12 font-bold border-2 hover:bg-white hover:border-gray-200 transition-all duration-300 shadow-sm flex items-center justify-center gap-3 active:scale-[0.98] group"
             type="button"
             onClick={() => toast.info("Google Login is coming soon!")}
           >
@@ -174,7 +174,7 @@ export function LoginForm() {
             Create an account
           </Link>
         </div>
-      </CardFooter>
-    </Card>
+      </CardFooter >
+    </Card >
   )
 }

@@ -9,11 +9,14 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Calendar, Clock, RotateCcw, BookOpen, Loader2, Trash2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Calendar, Clock, RotateCcw, BookOpen, Loader2, Trash2, CheckCircle2, AlertCircle, Wallet, BookMarked, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { LazyImage } from '@/components/ui/lazy-image'
+import { MyFinesPage } from '@/features/fines/pages/MyFinesPage'
+import { ReadingListsPage } from '@/features/reading-lists/pages/ReadingListsPage'
+import { PurchaseRequestsPage } from '@/features/purchase-requests/pages/PurchaseRequestsPage'
 
 const FALLBACK = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop'
 
@@ -101,8 +104,8 @@ export function MyBooksPage() {
           { label: 'Ready Pickup', value: reservations.filter(r => r.status === RESERVATION_STATUS.READY).length, color: 'text-emerald-600', tab: 'reservations' },
           { label: 'Returned', value: history.length, color: 'text-muted-foreground', tab: 'history' },
         ].map(s => (
-          <div 
-            key={s.label} 
+          <div
+            key={s.label}
             onClick={() => setActiveTab(s.tab)}
             className="rounded-2xl border bg-background/60 p-4 text-center shadow-sm cursor-pointer hover:bg-muted/50 transition-colors group"
           >
@@ -121,10 +124,20 @@ export function MyBooksPage() {
             Reservations {activeRes.length > 0 && <span className="ml-1 bg-amber-500 text-white text-[10px] rounded-full px-1.5">{activeRes.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="history" className="rounded-xl px-5 py-2 font-bold">Returned ({history.length})</TabsTrigger>
-        </TabsList>
+          <TabsTrigger value="fines" className="rounded-xl px-4 py-2 font-bold gap-2">
+            <Wallet className="h-3.5 w-3.5" /> Fines
+          </TabsTrigger>
+          <TabsTrigger value="reading-lists" className="rounded-xl px-4 py-2 font-bold gap-2">
+            <BookMarked className="h-3.5 w-3.5" /> Curriculum
+          </TabsTrigger>
+          <TabsTrigger value="requests" className="rounded-xl px-4 py-2 font-bold gap-2">
+            <ShoppingBag className="h-3.5 w-3.5" /> Requests
+          </TabsTrigger>
+          <TabsTrigger value="history" className="rounded-xl px-4 py-2 font-bold">History</TabsTrigger>
+        </TabsList >
 
         {/* BORROWED */}
-        <TabsContent value="borrowed" className="mt-6">
+        < TabsContent value="borrowed" className="mt-6" >
           {l1 ? <GridSkeleton /> : loans.length === 0
             ? <Empty msg="No active loans" sub="Browse the catalog to borrow a book." />
             : (
@@ -161,19 +174,20 @@ export function MyBooksPage() {
                           {returningIds.has(loan.id)
                             ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Requesting...</>
                             : loan.status === 'RETURN_REQUESTED'
-                            ? <><Clock className="h-3.5 w-3.5 mr-1.5 text-amber-500" />Return Pending Admin</>
-                            : <><RotateCcw className="h-3.5 w-3.5 mr-1.5" />Return Book</>}
+                              ? <><Clock className="h-3.5 w-3.5 mr-1.5 text-amber-500" />Return Pending Admin</>
+                              : <><RotateCcw className="h-3.5 w-3.5 mr-1.5" />Return Book</>}
                         </Button>
                       </CardContent>
                     </Card>
                   )
                 })}
               </div>
-            )}
-        </TabsContent>
+            )
+          }
+        </TabsContent >
 
         {/* RESERVATIONS */}
-        <TabsContent value="reservations" className="mt-6 space-y-3">
+        < TabsContent value="reservations" className="mt-6 space-y-3" >
           {l3 ? <ListSkeleton /> : activeRes.length === 0
             ? <Empty msg="No active reservations" sub="Reserve a book from its detail page." />
             : activeRes.map(r => (
@@ -183,16 +197,36 @@ export function MyBooksPage() {
               />
             ))
           }
-          {pastRes.length > 0 && (
-            <div className="pt-4 space-y-2">
-              <p className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Past Reservations</p>
-              {pastRes.map(r => <ReservationRow key={r.id} r={r} />)}
-            </div>
-          )}
+          {
+            pastRes.length > 0 && (
+              <div className="pt-4 space-y-2">
+                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Past Reservations</p>
+                {pastRes.map(r => <ReservationRow key={r.id} r={r} />)}
+              </div>
+            )
+          }
+        </TabsContent >
+
+        <TabsContent value="fines" className="mt-6">
+          <div className="bg-white border border-gray-100 rounded-3xl p-2 sm:p-6">
+            <MyFinesPage />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="reading-lists" className="mt-6">
+          <div className="bg-white border border-gray-100 rounded-3xl p-2 sm:p-6">
+            <ReadingListsPage />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="requests" className="mt-6">
+          <div className="bg-white border border-gray-100 rounded-3xl p-2 sm:p-6">
+            <PurchaseRequestsPage />
+          </div>
         </TabsContent>
 
         {/* HISTORY */}
-        <TabsContent value="history" className="mt-6 space-y-3">
+        < TabsContent value="history" className="mt-6 space-y-3" >
           {l2 ? <ListSkeleton /> : history.length === 0
             ? <Empty msg="No borrowing history yet" />
             : history.map(loan => (
@@ -201,13 +235,13 @@ export function MyBooksPage() {
                   <LazyImage src={loan.coverImageUrl || FALLBACK} alt={loan.bookTitle} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                
+
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                   <h3 className="font-bold text-sm sm:text-base text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2 mb-1">
                     {loan.bookTitle}
                   </h3>
                   <p className="text-xs font-semibold text-muted-foreground/90 mb-3">{loan.bookAuthor}</p>
-                  
+
                   <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase tracking-wider bg-muted/40 px-2.5 py-1 rounded-full border border-border/50">
                       <Calendar className="h-3 w-3" />
@@ -217,7 +251,7 @@ export function MyBooksPage() {
                 </div>
 
                 <div className="flex flex-col items-end gap-3 shrink-0">
-                  <Badge variant="outline" className={cn('text-[10px] font-black px-3 py-1 rounded-full border-2 uppercase tracking-widest shadow-sm', 
+                  <Badge variant="outline" className={cn('text-[10px] font-black px-3 py-1 rounded-full border-2 uppercase tracking-widest shadow-sm',
                     loan.status === 'RETURNED' ? 'bg-emerald-50/80 text-emerald-700 border-emerald-100' : 'bg-rose-50/80 text-rose-700 border-rose-100')}>
                     {loan.status === 'RETURNED' ? <><CheckCircle2 className="h-3.5 w-3.5 mr-1.5 inline" />Returned</> : loan.status}
                   </Badge>
@@ -228,19 +262,19 @@ export function MyBooksPage() {
               </div>
             ))
           }
-        </TabsContent>
-      </Tabs>
-    </div>
+        </TabsContent >
+      </Tabs >
+    </div >
   )
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  PENDING:   'bg-amber-500/10 text-amber-600 border-amber-500/20',
-  APPROVED:  'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  READY:     'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+  PENDING: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  APPROVED: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  READY: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
   COLLECTED: 'bg-primary/10 text-primary border-primary/20',
   CANCELLED: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
-  EXPIRED:   'bg-muted text-muted-foreground border-transparent',
+  EXPIRED: 'bg-muted text-muted-foreground border-transparent',
 }
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'In Queue', APPROVED: 'Processing', READY: 'Ready for Pickup',
@@ -302,8 +336,8 @@ function Empty({ msg, sub }: { msg: string; sub?: string }) {
 }
 
 function GridSkeleton() {
-  return <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">{[1,2,3].map(i => <Skeleton key={i} className="h-64 rounded-2xl" />)}</div>
+  return <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">{[1, 2, 3].map(i => <Skeleton key={i} className="h-64 rounded-2xl" />)}</div>
 }
 function ListSkeleton() {
-  return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-28 rounded-3xl" />)}</div>
+  return <div className="space-y-4">{[1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-3xl" />)}</div>
 }

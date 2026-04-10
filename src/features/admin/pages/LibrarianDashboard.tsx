@@ -1,24 +1,21 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/store/useAuth'
 import { useQuery } from '@tanstack/react-query'
 import { adminService } from '../services/adminService'
 import { AddBookModal } from '@/features/books/components/AddBookModal'
 import { borrowService, type TransactionResponse } from '@/features/borrowing/services/borrowService'
 import { type PopularBook } from '../types'
 import { cn } from '@/lib/utils'
-import { Users, BookOpen, AlertTriangle, TrendingUp, Package, Plus, ArrowRight, Clock, BarChart3 } from 'lucide-react'
-// import { Card, CardContent } from '@/components/ui/card'
+import { Users, BookOpen, AlertTriangle, TrendingUp, Package, Plus, ArrowRight, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export function AdminDashboard() {
+export function LibrarianDashboard() {
   const navigate = useNavigate()
-  const { user } = useAuth()
   const [isAddBookOpen, setIsAddBookOpen] = useState(false)
-
+  
   const { data: statsData, isLoading: isStatsLoading, refetch: refetchStats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: () => adminService.getDashboard(),
@@ -40,20 +37,16 @@ export function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {user?.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard'}
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Real-time overview of {user?.role === 'SUPER_ADMIN' ? 'system-wide' : 'your library'} operations.
-          </p>
-        </div >
+          <h1 className="text-2xl font-bold text-gray-900">Librarian Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Operational overview of the library.</p>
+        </div>
         <Button
           onClick={() => setIsAddBookOpen(true)}
           className="h-10 px-5 font-bold rounded-xl bg-primary hover:bg-primary/90 w-fit"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Book
         </Button>
-      </div >
+      </div>
 
       <AddBookModal
         open={isAddBookOpen}
@@ -63,27 +56,25 @@ export function AdminDashboard() {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <StatCard icon={<Package className="text-blue-500" />} label="Total Books" value={stats?.totalBooks} subValue={`${stats?.availableBooks} available`} loading={isStatsLoading} onClick={() => navigate('/admin/books')} />
-        <StatCard icon={<Users className="text-emerald-500" />} label="Members" value={stats?.totalMembers} subValue="Registered" loading={isStatsLoading} onClick={() => navigate('/admin/users')} />
-        <StatCard icon={<BookOpen className="text-amber-500" />} label="Active Loans" value={stats?.activeBorrowings} subValue="Currently out" loading={isStatsLoading} onClick={() => navigate('/admin/borrows')} />
-        <StatCard icon={<Clock className="text-primary" />} label="Reservations" value={0} subValue="In queue" loading={isStatsLoading} onClick={() => navigate('/admin/reservations')} />
-        <StatCard icon={<AlertTriangle className="text-rose-500" />} label="Overdue" value={stats?.overdueBooks} subValue="Need attention" loading={isStatsLoading} destructive={Number(stats?.overdueBooks) > 0} onClick={() => navigate('/admin/overdue')} />
+        <StatCard icon={<Package className="text-blue-500" />} label="Total Books" value={stats?.totalBooks} subValue={`${stats?.availableBooks} available`} loading={isStatsLoading} onClick={() => navigate('/librarian/books')} />
+        <StatCard icon={<Users className="text-emerald-500" />} label="Members" value={stats?.totalMembers} subValue="Registered" loading={isStatsLoading} onClick={() => navigate('/librarian/users')} />
+        <StatCard icon={<BookOpen className="text-amber-500" />} label="Active Loans" value={stats?.activeBorrowings} subValue="Currently out" loading={isStatsLoading} onClick={() => navigate('/librarian/borrows')} />
+        <StatCard icon={<Clock className="text-primary" />} label="Reservations" value={0} subValue="In queue" loading={isStatsLoading} onClick={() => navigate('/librarian/reservations')} />
+        <StatCard icon={<AlertTriangle className="text-rose-500" />} label="Overdue" value={stats?.overdueBooks} subValue="Need attention" loading={isStatsLoading} destructive={Number(stats?.overdueBooks) > 0} onClick={() => navigate('/librarian/overdue')} />
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { label: 'Manage Books', path: '/admin/books', icon: <BookOpen className="h-4 w-4" /> },
-          { label: 'Reservations', path: '/admin/reservations', icon: <Clock className="h-4 w-4" /> },
-          { label: 'Borrows', path: '/admin/borrows', icon: <Package className="h-4 w-4" /> },
-          { label: 'Overdue', path: '/admin/overdue', icon: <AlertTriangle className="h-4 w-4" /> },
-          { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="h-4 w-4" /> },
-          { label: 'Manage Books', path: '/admin/books', icon: <BookOpen className="h-4 w-4" /> },
-          { label: 'Reservations', path: '/admin/reservations', icon: <Clock className="h-4 w-4" /> },
-          { label: 'Borrows', path: '/admin/borrows', icon: <Package className="h-4 w-4" /> },
+          { label: 'Books', path: '/librarian/books', icon: <BookOpen className="h-4 w-4" /> },
+          { label: 'Users', path: '/librarian/users', icon: <Users className="h-4 w-4" /> },
+          { label: 'Borrows', path: '/librarian/borrows', icon: <Package className="h-4 w-4" /> },
+          { label: 'Fines', path: '/librarian/fines', icon: <TrendingUp className="h-4 w-4" /> },
+          { label: 'Curriculum', path: '/librarian/reading-lists', icon: <BookOpen className="h-4 w-4" /> },
+          { label: 'Purchases', path: '/librarian/purchase-requests', icon: <Plus className="h-4 w-4" /> },
         ].map(a => (
-          <Button key={a.path} variant="outline" className="h-12 gap-2 font-semibold rounded-xl border-gray-200 hover:border-primary/40 hover:bg-primary/5 justify-start px-4" onClick={() => navigate(a.path)}>
-            {a.icon}{a.label}
+          <Button key={a.path} variant="outline" className="h-12 gap-2 font-semibold rounded-xl border-gray-200 hover:border-primary/40 hover:bg-primary/5 justify-start px-3" onClick={() => navigate(a.path)}>
+            {a.icon}<span className="truncate">{a.label}</span>
           </Button>
         ))}
       </div>
@@ -94,7 +85,7 @@ export function AdminDashboard() {
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
               <h2 className="font-semibold text-gray-700 text-sm">Recent Transactions</h2>
-              <Button variant="ghost" size="sm" className="text-xs text-primary font-bold h-7" onClick={() => navigate('/admin/borrows')}>View all <ArrowRight className="h-3 w-3 ml-1" /></Button>
+              <Button variant="ghost" size="sm" className="text-xs text-primary font-bold h-7" onClick={() => navigate('/librarian/borrows')}>View all <ArrowRight className="h-3 w-3 ml-1" /></Button>
             </div>
             <div className="overflow-x-auto">
               <Table>
@@ -143,7 +134,7 @@ export function AdminDashboard() {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   )
 }
 

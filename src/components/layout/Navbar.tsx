@@ -17,6 +17,9 @@ import {
   TriangleAlert,
   ShieldAlert,
   Home,
+  Wallet,
+  BookMarked,
+  ShoppingBag,
 } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
@@ -108,7 +111,7 @@ export function Navbar() {
               </span>
             </Link>
             {/* Nav links */}
-            <div className="hidden md:flex items-center gap-1 ml-10">
+            <div className="hidden md:flex items-center gap-1 ml-4">
               {[
                 { to: '/', label: 'Home' },
                 { to: '/search', label: 'Catalog' },
@@ -265,14 +268,16 @@ export function Navbar() {
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
 
       {/* Mobile Menu */}
-      <div className={cn(
-        "md:hidden absolute top-16 left-0 w-full bg-background border-b shadow-2xl transition-all duration-300 origin-top overflow-hidden",
-        isMenuOpen ? "h-fit opacity-100 visible" : "h-0 opacity-0 invisible"
-      )}>
+      < div className={
+        cn(
+          "md:hidden absolute top-16 left-0 w-full bg-background border-b shadow-2xl transition-all duration-300 origin-top overflow-hidden",
+          isMenuOpen ? "h-fit opacity-100 visible" : "h-0 opacity-0 invisible"
+        )
+      } >
         <div className="container mx-auto px-4 py-6 space-y-4">
           {/* Search — only when logged in */}
           {isAuthenticated && (
@@ -336,8 +341,8 @@ export function Navbar() {
             )}
           </div>
         </div>
-      </div>
-    </nav>
+      </div >
+    </nav >
   )
 }
 
