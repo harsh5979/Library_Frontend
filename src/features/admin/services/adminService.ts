@@ -12,13 +12,13 @@ export const adminService = {
   getCategoryStats: async (): Promise<ApiResponse<CategoryStat[]>> => {
     return api.get('/analytics/category-breakdown')
   },
-  getBorrowingTrends: async (): Promise<ApiResponse<any[]>> => {
+  getBorrowingTrends: async (): Promise<ApiResponse<any>> => {
     return api.get('/analytics/borrowing-trends')
   },
   getPopularCategories: async (): Promise<ApiResponse<any[]>> => {
     return api.get('/analytics/category-breakdown')
   },
-  getFineCollectionAnalytics: async (): Promise<ApiResponse<any[]>> => {
+  getFineCollectionAnalytics: async (): Promise<ApiResponse<any>> => {
     return api.get('/analytics/fine-collection')
   },
   getActiveUsersAnalytics: async (): Promise<ApiResponse<any[]>> => {

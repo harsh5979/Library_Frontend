@@ -53,8 +53,8 @@ export function FineManagementPage() {
   const allFines = data?.data?.content ?? []
   const filtered = allFines.filter(f => 
     !search || 
-    f.userName.toLowerCase().includes(search.toLowerCase()) || 
-    f.bookTitle.toLowerCase().includes(search.toLowerCase())
+    f.user_name.toLowerCase().includes(search.toLowerCase()) || 
+    f.book_title.toLowerCase().includes(search.toLowerCase())
   )
 
   const pending = filtered.filter(f => f.status === 'PENDING')
@@ -106,17 +106,17 @@ export function FineManagementPage() {
                 ) : pending.map(f => (
                   <TableRow key={f.id} className="hover:bg-gray-50 transition-colors">
                     <TableCell>
-                      <p className="font-bold text-gray-900 text-sm">{f.userName}</p>
-                      <p className="text-xs text-gray-400 truncate max-w-[200px]">{f.bookTitle}</p>
+                      <p className="font-bold text-gray-900 text-sm">{f.user_name}</p>
+                      <p className="text-xs text-gray-400 truncate max-w-[200px]">{f.book_title}</p>
                     </TableCell>
-                    <TableCell><p className="font-black text-rose-500 text-sm">₹{f.amount}</p></TableCell>
-                    <TableCell><p className="text-sm font-medium text-gray-600">{f.daysOverdue} days</p></TableCell>
+                    <TableCell><p className="font-black text-rose-500 text-sm">₹{f.total_amount}</p></TableCell>
+                    <TableCell><p className="text-sm font-medium text-gray-600">{f.days_overdue} days</p></TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" className="h-8 text-xs font-bold border-emerald-500 text-emerald-600 hover:bg-emerald-50" onClick={() => payMutation.mutate(f.id)} disabled={payMutation.isPending}>
                         {payMutation.isPending && payMutation.variables === f.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <CreditCard className="h-3 w-3 mr-1" />}
                         Collect
                       </Button>
-                      <Button variant="outline" size="sm" className="h-8 text-xs font-bold border-gray-300 text-gray-400 hover:text-rose-500" onClick={() => setWaiveDialog({ id: f.id, name: f.userName })}>
+                      <Button variant="outline" size="sm" className="h-8 text-xs font-bold border-gray-300 text-gray-400 hover:text-rose-500" onClick={() => setWaiveDialog({ id: f.id, name: f.user_name })}>
                         Waive
                       </Button>
                     </TableCell>
@@ -142,16 +142,16 @@ export function FineManagementPage() {
               <TableBody>
                 {history.map(f => (
                   <TableRow key={f.id}>
-                    <TableCell className="font-bold text-sm">{f.userName}</TableCell>
-                    <TableCell className="text-xs text-gray-500 truncate max-w-[150px]">{f.bookTitle}</TableCell>
-                    <TableCell className="font-bold text-sm">₹{f.amount}</TableCell>
+                    <TableCell className="font-bold text-sm">{f.user_name}</TableCell>
+                    <TableCell className="text-xs text-gray-500 truncate max-w-[150px]">{f.book_title}</TableCell>
+                    <TableCell className="font-bold text-sm">₹{f.total_amount}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={cn('text-[10px] font-black uppercase', f.status === 'PAID' ? 'text-emerald-600 border-emerald-200 bg-emerald-50' : 'text-gray-400 border-gray-200 bg-gray-50')}>
                         {f.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right text-[10px] text-gray-400 font-mono">
-                      {f.paidAt ? new Date(f.paidAt).toLocaleDateString() : '—'}
+                      {f.paid_at ? new Date(f.paid_at).toLocaleDateString() : '—'}
                     </TableCell>
                   </TableRow>
                 ))}

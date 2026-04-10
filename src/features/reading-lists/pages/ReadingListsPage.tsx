@@ -7,9 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
-import { BookOpen, Plus, Trash2, LayoutGrid, BookMarked, User as UserIcon, MoreHorizontal } from 'lucide-react'
+import { BookOpen, Plus, Trash2, LayoutGrid, BookMarked, User as UserIcon } from 'lucide-react'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 
 export function ReadingListsPage() {
   const { user } = useAuth()
@@ -32,7 +31,7 @@ export function ReadingListsPage() {
   })
 
   const createMutation = useMutation({
-    mutationFn: (data: { title: string; description: string }) => readingListService.create({ ...data, isPublic: true }),
+    mutationFn: (data: { title: string; description: string }) => readingListService.create({ ...data, isPublic: true, subject: 'General' }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['reading-lists-my'] })
       qc.invalidateQueries({ queryKey: ['reading-lists-public'] })

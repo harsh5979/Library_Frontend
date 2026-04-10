@@ -1,5 +1,8 @@
-import { FileText, Download, PieChart, Users, BookOpen, AlertCircle, FileBarChart } from 'lucide-react'
+import { FileText, Download, PieChart, Users, BookOpen, AlertCircle, FileBarChart, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useState } from 'react'
+import { reportService } from '../services/reportService'
+import { toast } from 'sonner'
 
 const REPORTS = [
   { id: 'inventory', title: 'Inventory Report', desc: 'Complete list of books and stock per branch.', icon: <BookOpen className="text-blue-500" /> },
@@ -10,13 +13,43 @@ const REPORTS = [
 ]
 
 export function ReportsPage() {
-  const getReportUrl = (id: string) => {
-    const base = import.meta.env.VITE_API_BASE_URL || 'https://api.library.iomd.site/api'
-    return `${base}/reports/${id}`
-  }
+  const [downloading, setDownloading] = useState<string | null>(null)
 
-  const handleDownload = (id: string) => {
-    window.open(getReportUrl(id), '_blank')
+  const handleDownload = async (id: string, title: string) => {
+    setDownloading(id)
+    try {
+      const getFn = () => {
+        switch(id) {
+          case 'inventory': return reportService.getInventoryReport()
+          case 'borrowing': return reportService.getBorrowingReport()
+          case 'fines': return reportService.getFineReport()
+          case 'semester': return reportService.getSemesterReport()
+          case 'overdue': return reportService.getOverdueReport()
+          default: throw new Error('Unknown report type')
+        }
+      }
+
+      const htmlContent = await getFn()
+      const filename = id
+      
+      const opt = {
+        margin: 10,
+        filename: `${filename}_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      }
+
+      // Dynamically import html2pdf
+      const html2pdf = (await import('html2pdf.js')).default
+      await html2pdf().from(htmlContent).set(opt).save()
+      toast.success(`${title} generated successfully`)
+    } catch (error) {
+      console.error('PDF Generation Error:', error)
+      toast.error(`Failed to generate ${title}`)
+    } finally {
+      setDownloading(null)
+    }
   }
 
   return (
@@ -40,10 +73,16 @@ export function ReportsPage() {
             </div>
 
             <Button 
-              onClick={() => handleDownload(report.id)}
+              onClick={() => handleDownload(report.id, report.title)}
+              disabled={downloading === report.id}
               className="h-10 px-6 rounded-xl font-bold bg-primary hover:bg-primary/90 text-xs gap-2 shrink-0"
             >
-              <Download className="h-4 w-4" /> Download HTML
+              {downloading === report.id ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              Download PDF
             </Button>
           </div>
         ))}

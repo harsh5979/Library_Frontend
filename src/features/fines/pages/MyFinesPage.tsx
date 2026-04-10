@@ -106,15 +106,15 @@ export function MyFinesPage() {
                 <TableRow key={fine.id} className="group hover:bg-gray-50/80 transition-colors border-b border-gray-50 last:border-0 font-medium">
                   <TableCell className="px-6 py-4">
                     <div className="space-y-0.5">
-                      <p className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">{fine.bookTitle}</p>
+                      <p className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">{fine.book_title}</p>
                       <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold">
                         <Clock className="h-3 w-3" />
-                        <span>{fine.daysOverdue} days overdue</span>
+                        <span>{fine.days_overdue} days overdue</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className="text-sm font-black text-gray-900">₹{fine.amount}</p>
+                    <p className="text-sm font-black text-gray-900">₹{fine.total_amount}</p>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={cn(
@@ -138,7 +138,7 @@ export function MyFinesPage() {
                     ) : (
                       <div className="space-y-0.5">
                         <p className="text-[10px] text-gray-400 font-bold">Settled On</p>
-                        <p className="text-xs text-gray-600 font-black">{fine.paidAt ? new Date(fine.paidAt).toLocaleDateString() : 'WAIVED'}</p>
+                        <p className="text-xs text-gray-600 font-black">{fine.paid_at ? new Date(fine.paid_at).toLocaleDateString() : 'WAIVED'}</p>
                       </div>
                     )}
                   </TableCell>

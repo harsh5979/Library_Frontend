@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
-import { BookPlus, CheckCircle2, XCircle, Clock, Search, ShoppingBag, Plus, Info } from 'lucide-react'
+import { BookPlus, CheckCircle2, XCircle, Clock, ShoppingBag, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
@@ -26,7 +26,14 @@ export function PurchaseRequestsPage() {
   })
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) => purchaseRequestService.create(data),
+    mutationFn: (data: typeof formData) => purchaseRequestService.create({
+      bookTitle: data.title,
+      author: data.author,
+      isbn: data.isbn,
+      reason: data.reason,
+      branchId: 1, // Defaulting to 1 as specified in plan
+      priority: 'MEDIUM'
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['purchase-requests'] })
       setIsRequestOpen(false)
@@ -80,7 +87,7 @@ export function PurchaseRequestsPage() {
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-black text-gray-900 leading-none">{req.title}</h3>
+                    <h3 className="font-black text-gray-900 leading-none">{req.bookTitle}</h3>
                     <Badge variant="outline" className={cn(
                       'text-[9px] font-black uppercase px-2',
                       req.status === 'PENDING' ? 'text-amber-500 border-amber-100 bg-amber-50/50' : 
@@ -94,7 +101,7 @@ export function PurchaseRequestsPage() {
                   <p className="text-xs text-gray-400 italic mt-2">"{req.reason}"</p>
                   <div className="flex items-center gap-4 text-[10px] text-gray-400 font-bold mt-2">
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(req.createdAt).toLocaleDateString()}</span>
-                    <span>Requested by: {req.requesterName}</span>
+                    <span>Requested by: {req.requestedByName}</span>
                   </div>
                 </div>
               </div>

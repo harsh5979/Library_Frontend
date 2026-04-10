@@ -4,10 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area 
+  PieChart, Pie, Cell, Legend, AreaChart, Area 
 } from 'recharts'
-import { TrendingUp, Users, BookOpen, IndianRupee, PieChart as PieIcon, LineChart as LineIcon, BarChart3 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { TrendingUp, Users, IndianRupee, PieChart as PieIcon } from 'lucide-react'
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
 
@@ -73,14 +72,14 @@ export function AnalyticsPage() {
                 <AreaChart data={trendsFormatted}>
                   <defs>
                     <linearGradient id="colorTrends" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                  <Tooltip contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                   <Area type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorTrends)" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -109,7 +108,7 @@ export function AnalyticsPage() {
                     dataKey="count"
                     nameKey="category"
                   >
-                    {categories.map((entry: any, index: number) => (
+                    {categories.map((_: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -129,17 +128,17 @@ export function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="h-[300px] min-h-[300px]">
-             {l3 ? <Skeleton className="h-full w-full rounded-2xl" /> : (
+            {l3 ? <Skeleton className="h-full w-full rounded-2xl" /> : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={finesFormatted}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none'}} />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none' }} />
                   <Bar dataKey="amount" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={20} />
                 </BarChart>
               </ResponsiveContainer>
-             )}
+            )}
           </CardContent>
         </Card>
 
@@ -156,8 +155,8 @@ export function AnalyticsPage() {
                 <BarChart data={users} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="userName" type="category" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} width={100} />
-                  <Tooltip contentStyle={{borderRadius: '12px', border: 'none'}} />
+                  <YAxis dataKey="userName" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} width={100} />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
                   <Bar dataKey="borrowCount" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={12} />
                 </BarChart>
               </ResponsiveContainer>

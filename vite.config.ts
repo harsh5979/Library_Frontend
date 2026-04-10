@@ -25,19 +25,19 @@ export default defineConfig({
     }
   },
   build: {
-    rolldownOptions: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
       output: {
-        advancedChunks: {
-          groups: [
-            { name: 'vendor-react', test: /node_modules\/(react|react-dom|react-router)/ },
-            { name: 'vendor-query', test: /node_modules\/@tanstack/ },
-            { name: 'vendor-ui', test: /node_modules\/(framer-motion|lucide-react|sonner)/ },
-            { name: 'vendor-radix', test: /node_modules\/@radix-ui/ },
-            { name: 'vendor-form', test: /node_modules\/(react-hook-form|@hookform|zod)/ },
-            { name: 'vendor-utils', test: /node_modules\/(axios|zustand|clsx|tailwind-merge|class-variance-authority)/ },
-          ],
-        },
-      },
-    },
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('html2pdf.js')) return 'vendor-pdf';
+            if (id.includes('react')) return 'vendor-react';
+            if (id.includes('lucide-react')) return 'vendor-ui';
+            if (id.includes('@radix-ui')) return 'vendor-radix';
+            return 'vendor';
+          }
+        }
+      }
+    }
   },
 })

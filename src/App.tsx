@@ -9,7 +9,6 @@ import { Toaster as Sonner } from 'sonner'
 import { Button } from './components/ui/button'
 import { Link } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import { useAuth } from './store/useAuth'
 
 // Lazy-loaded pages
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout').then(m => ({ default: m.AdminLayout })))
@@ -33,12 +32,9 @@ const OverdueManagementPage = lazy(() => import('./features/admin/pages/OverdueM
 const ReservationManagementPage = lazy(() => import('./features/admin/pages/ReservationManagementPage').then(m => ({ default: m.ReservationManagementPage })))
 const BorrowManagementPage = lazy(() => import('./features/admin/pages/BorrowManagementPage').then(m => ({ default: m.BorrowManagementPage })))
 const FineManagementPage = lazy(() => import('./features/admin/pages/FineManagementPage').then(m => ({ default: m.FineManagementPage })))
-const TransferManagementPage = lazy(() => import('./features/admin/pages/TransferManagementPage').then(m => ({ default: m.TransferManagementPage })))
-const AdminReportsPage = lazy(() => import('./features/reports/pages/AdminReportsPage').then(m => ({ default: m.AdminReportsPage })))
 const ForgotPasswordPage = lazy(() => import('./features/auth/pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
 const VerifyEmailPage = lazy(() => import('./features/auth/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })))
 const ResetPasswordPage = lazy(() => import('./features/auth/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
-const NotificationManagementPage = lazy(() => import('./features/notifications/pages/NotificationManagementPage').then(m => ({ default: m.NotificationManagementPage })))
 const AnalyticsPage = lazy(() => import('./features/admin/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })))
 const ReportsPage = lazy(() => import('./features/reports/pages/ReportsPage').then(m => ({ default: m.ReportsPage })))
 
