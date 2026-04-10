@@ -290,8 +290,8 @@ export function BookDetailPage() {
 
             {/* Inter-branch transfer */}
             {(!user || user.role === 'STUDENT' || user.role === 'FACULTY') && book.availableCopies === 0 && availability && availability.availableCopiesAllBranches > 0 && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="h-14 text-lg font-bold rounded-xl border-emerald-500 text-emerald-600 hover:bg-emerald-50 gap-2 shrink-0"
                 onClick={() => setTransferOpen(true)}
               >
@@ -391,8 +391,8 @@ export function BookDetailPage() {
                           onClick={() => setSelectedSourceBranch(branch.branchId)}
                           className={cn(
                             "flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left group",
-                            selectedSourceBranch === branch.branchId 
-                              ? "border-primary bg-primary/5 shadow-md" 
+                            selectedSourceBranch === branch.branchId
+                              ? "border-primary bg-primary/5 shadow-md"
                               : "border-muted hover:border-primary/20 bg-muted/20"
                           )}
                         >
@@ -401,9 +401,9 @@ export function BookDetailPage() {
                             <p className="text-[10px] text-muted-foreground font-bold">{branch.availableCopies} available · {branch.location}</p>
                           </div>
                           {selectedSourceBranch === branch.branchId ? (
-                             <CheckCircle2 className="h-5 w-5 text-primary animate-in zoom-in duration-300" />
+                            <CheckCircle2 className="h-5 w-5 text-primary animate-in zoom-in duration-300" />
                           ) : (
-                             <Building className="h-5 w-5 text-muted-foreground/30 group-hover:text-primary/30 transition-colors" />
+                            <Building className="h-5 w-5 text-muted-foreground/30 group-hover:text-primary/30 transition-colors" />
                           )}
                         </button>
                       ))}
@@ -412,12 +412,12 @@ export function BookDetailPage() {
 
                   <div className="flex gap-3 pt-2">
                     <Button variant="outline" className="flex-1 rounded-xl h-12 font-black border-2" onClick={() => setTransferOpen(false)}>Cancel</Button>
-                    <Button 
+                    <Button
                       className="flex-1 rounded-xl h-12 font-black shadow-xl shadow-primary/20"
                       disabled={!selectedSourceBranch || transferMutation.isPending}
                       onClick={() => {
-                        transferMutation.mutate({ 
-                          from_branch_id: selectedSourceBranch!, 
+                        transferMutation.mutate({
+                          from_branch_id: selectedSourceBranch!,
                           to_branch_id: 1, // Defaulting to main branch
                           notes: `Relocation request for ${book.title}.`
                         })

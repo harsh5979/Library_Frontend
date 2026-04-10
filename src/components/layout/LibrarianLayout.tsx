@@ -4,28 +4,25 @@ import { useAuth } from '@/store/useAuth'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, BookOpen, Users, AlertTriangle, CalendarClock,
-  Library, Bell, LogOut, ChevronLeft, ChevronRight, Menu, X, BarChart3
+  Library, LogOut, ChevronLeft, ChevronRight, Menu, X, BarChart3
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { label: 'Manage Books', href: '/admin/books', icon: BookOpen },
-  { label: 'Users', href: '/admin/users', icon: Users },
-  { label: 'Reservations', href: '/admin/reservations', icon: CalendarClock },
-  { label: 'Borrows', href: '/admin/borrows', icon: BookOpen },
-  { label: 'Overdue', href: '/admin/overdue', icon: AlertTriangle },
-  { label: 'Notifications', href: '/admin/notifications', icon: Bell },
-  { label: 'Fines', href: '/admin/fines', icon: AlertTriangle },
-  { label: 'Purchases', href: '/admin/purchase-requests', icon: LayoutDashboard },
-  { label: 'Reports', href: '/admin/reports', icon: Library },
-  { label: 'Reading Lists', href: '/admin/reading-lists', icon: BookOpen },
-  { label: 'Overdue', href: '/admin/overdue', icon: AlertTriangle },
+  { label: 'Dashboard',     href: '/librarian',              icon: LayoutDashboard },
+  { label: 'Analytics',     href: '/librarian/analytics',    icon: BarChart3 },
+  { label: 'Manage Books',  href: '/librarian/books',        icon: BookOpen },
+  { label: 'Users',         href: '/librarian/users',        icon: Users },
+  { label: 'Reservations',  href: '/librarian/reservations', icon: CalendarClock },
+  { label: 'Borrows',       href: '/librarian/borrows',      icon: BookOpen },
+  { label: 'Fines',         href: '/librarian/fines',         icon: AlertTriangle },
+  { label: 'Purchases',     href: '/librarian/purchase-requests', icon: LayoutDashboard },
+  { label: 'Reading Lists', href: '/librarian/reading-lists',    icon: BookOpen },
+  { label: 'Overdue',       href: '/librarian/overdue',      icon: AlertTriangle },
 ]
 
-export function AdminLayout() {
+export function LibrarianLayout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
@@ -41,40 +38,33 @@ export function AdminLayout() {
         <div className="size-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
           <Library className="size-4 text-white" />
         </div>
-        {(!collapsed || mobile) && (
-          <span className="font-bold text-gray-900 text-lg">
-            {user?.role === 'SUPER_ADMIN' ? 'Admin Panel' : 'Library Panel'}
-          </span>
-        )
-        }
-      </div >
+        {(!collapsed || mobile) && <span className="font-bold text-gray-900 text-lg">Librarian Panel</span>}
+      </div>
 
       {/* Nav */}
-      < nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" >
-        {
-          navItems.map(({ label, href, icon: Icon }) => {
-            const active = pathname === href
-            return (
-              <Link
-                key={href}
-                to={href}
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                  active ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-                  collapsed && !mobile && 'justify-center px-0'
-                )}
-              >
-                <Icon className={cn('size-4 shrink-0', active ? 'text-white' : 'text-gray-400')} />
-                {(!collapsed || mobile) && <span>{label}</span>}
-              </Link>
-            )
-          })
-        }
-      </nav >
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {navItems.map(({ label, href, icon: Icon }) => {
+          const active = pathname === href
+          return (
+            <Link
+              key={href}
+              to={href}
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                active ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                collapsed && !mobile && 'justify-center px-0'
+              )}
+            >
+              <Icon className={cn('size-4 shrink-0', active ? 'text-white' : 'text-gray-400')} />
+              {(!collapsed || mobile) && <span>{label}</span>}
+            </Link>
+          )
+        })}
+      </nav>
 
       {/* User + logout */}
-      < div className="p-3 border-t border-gray-200 space-y-2" >
+      <div className="p-3 border-t border-gray-200 space-y-2">
         {(!collapsed || mobile) && (
           <div className="flex items-center gap-2 px-2 py-1">
             <Avatar className="size-7 shrink-0">
@@ -96,8 +86,8 @@ export function AdminLayout() {
           <LogOut className="size-4 shrink-0" />
           {(!collapsed || mobile) && 'Sign out'}
         </Button>
-      </div >
-    </div >
+      </div>
+    </div>
   )
 
   return (
@@ -132,22 +122,19 @@ export function AdminLayout() {
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </Button>
             <span className="text-sm font-semibold text-gray-700">
-              {
-                navItems.find(n => n.href === pathname)?.label ??
-                (user?.role === 'SUPER_ADMIN' ? 'Admin Dashboard' : 'Library Dashboard')
-              }
-            </span >
-          </div >
+              {navItems.find(n => n.href === pathname)?.label ?? 'Admin'}
+            </span>
+          </div>
           <Link to="/" className="text-xs text-primary font-semibold hover:underline">← Back to Site</Link>
-        </header >
+        </header>
 
         {/* Page content */}
-        < main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8" >
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto w-full">
             <Outlet />
           </div>
-        </main >
-      </div >
-    </div >
+        </main>
+      </div>
+    </div>
   )
 }

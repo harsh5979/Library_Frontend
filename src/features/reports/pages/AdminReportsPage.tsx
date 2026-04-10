@@ -15,23 +15,31 @@ import {
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
+
+
 export function AdminReportsPage() {
   const [downloading, setDownloading] = useState<string | null>(null)
 
-  const handleDownload = async (type: string, fn: () => Promise<any>, filename: string) => {
+  const handleDownload = async (type: string, fn: () => Promise<string>, filename: string) => {
     setDownloading(type)
     try {
-      const data = await fn()
-      const blob = new Blob([data], { type: 'text/csv' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${filename}_${new Date().toISOString().split('T')[0]}.csv`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
+      const htmlContent = await fn()
+      
+      const opt = {
+        margin: 10,
+        filename: `${filename}_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      }
+
+      // Dynamically import html2pdf
+      const html2pdf = (await import('html2pdf.js')).default
+      await html2pdf().from(htmlContent).set(opt).save()
+      
       toast.success(`${type} generated successfully`)
     } catch (error) {
+      console.error('PDF Generation Error:', error)
       toast.error(`Failed to generate ${type}`)
     } finally {
       setDownloading(null)
@@ -125,7 +133,7 @@ export function AdminReportsPage() {
                 ) : (
                   <Download className="h-4 w-4" />
                 )}
-                Export as CSV
+                Download PDF
               </Button>
             </CardContent>
           </Card>
