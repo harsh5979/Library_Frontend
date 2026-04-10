@@ -164,7 +164,17 @@ export function Navbar() {
                       {notifications.length > 0 ? (
                         <div className="divide-y divide-primary/5">
                           {notifications.map((notif: { id: number; type: string; isRead: boolean; title: string; message: string; createdAt: string }) => (
-                            <div key={notif.id} className={cn("p-4 transition-colors hover:bg-muted/30 group relative", !notif.isRead && "bg-primary/[0.02]")}>
+                            <div
+                              key={notif.id}
+                              onClick={() => {
+                                if (!notif.isRead) readMutation.mutate(notif.id);
+                                navigate(user?.role?.toUpperCase() === 'STUDENT' || user?.role?.toUpperCase() === 'FACULTY' ? '/profile' : '/admin/notifications');
+                              }}
+                              className={cn(
+                                "p-4 transition-colors hover:bg-muted/30 group relative cursor-pointer",
+                                !notif.isRead && "bg-primary/[0.02]"
+                              )}
+                            >
                               <div className="flex gap-3">
                                 <NotificationIcon type={notif.type} />
                                 <div className="flex-1 space-y-1">
@@ -173,7 +183,7 @@ export function Navbar() {
                                   <p className="text-[10px] text-muted-foreground/60 font-medium">{new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                 </div>
                               </div>
-                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                                 {!notif.isRead && <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md hover:text-emerald-500" onClick={() => readMutation.mutate(notif.id)}><CheckCheck className="h-3 w-3" /></Button>}
                                 <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md hover:text-rose-500" onClick={() => deleteMutation.mutate(notif.id)}><Trash2 className="h-3 w-3" /></Button>
                               </div>

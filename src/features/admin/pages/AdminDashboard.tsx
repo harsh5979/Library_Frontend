@@ -78,9 +78,6 @@ export function AdminDashboard() {
           { label: 'Borrows', path: '/admin/borrows', icon: <Package className="h-4 w-4" /> },
           { label: 'Overdue', path: '/admin/overdue', icon: <AlertTriangle className="h-4 w-4" /> },
           { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="h-4 w-4" /> },
-          { label: 'Manage Books', path: '/admin/books', icon: <BookOpen className="h-4 w-4" /> },
-          { label: 'Reservations', path: '/admin/reservations', icon: <Clock className="h-4 w-4" /> },
-          { label: 'Borrows', path: '/admin/borrows', icon: <Package className="h-4 w-4" /> },
         ].map(a => (
           <Button key={a.path} variant="outline" className="h-12 gap-2 font-semibold rounded-xl border-gray-200 hover:border-primary/40 hover:bg-primary/5 justify-start px-4" onClick={() => navigate(a.path)}>
             {a.icon}{a.label}
