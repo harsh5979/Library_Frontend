@@ -68,7 +68,7 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent className="h-[300px] min-h-[300px] pl-2">
             {l1 ? <Skeleton className="h-full w-full rounded-2xl" /> : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <AreaChart data={trendsFormatted}>
                   <defs>
                     <linearGradient id="colorTrends" x1="0" y1="0" x2="0" y2="1">
@@ -96,7 +96,7 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent className="h-[300px] min-h-[300px]">
             {l2 ? <Skeleton className="h-full w-full rounded-2xl" /> : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     data={categories}
@@ -129,7 +129,7 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent className="h-[300px] min-h-[300px]">
             {l3 ? <Skeleton className="h-full w-full rounded-2xl" /> : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={finesFormatted}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
@@ -151,7 +151,7 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent className="h-[300px] min-h-[300px]">
             {l4 ? <Skeleton className="h-full w-full rounded-2xl" /> : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={users} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                   <XAxis type="number" hide />
