@@ -37,6 +37,7 @@ const VerifyEmailPage = lazy(() => import('./features/auth/pages/VerifyEmailPage
 const ResetPasswordPage = lazy(() => import('./features/auth/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
 const AnalyticsPage = lazy(() => import('./features/admin/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })))
 const ReportsPage = lazy(() => import('./features/reports/pages/ReportsPage').then(m => ({ default: m.ReportsPage })))
+const NotificationManagementPage = lazy(() => import('./features/notifications/pages/NotificationManagementPage').then(m => ({ default: m.NotificationManagementPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,7 @@ function App() {
                 <Route path="/admin/reports" element={<ReportsPage />} />
                 <Route path="/admin/reading-lists" element={<ReadingListsPage />} />
                 <Route path="/admin/purchase-requests" element={<PurchaseRequestsPage />} />
+                <Route path="/admin/notifications" element={<NotificationManagementPage />} />
               </Route>
             </Route>
 
@@ -82,6 +84,7 @@ function App() {
                 <Route path="/librarian/fines" element={<FineManagementPage />} />
                 <Route path="/librarian/reading-lists" element={<ReadingListsPage />} />
                 <Route path="/librarian/purchase-requests" element={<PurchaseRequestsPage />} />
+                <Route path="/librarian/notifications" element={<NotificationManagementPage />} />
               </Route>
             </Route>
 
