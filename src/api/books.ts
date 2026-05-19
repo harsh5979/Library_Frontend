@@ -1,91 +1,58 @@
-import apiClient from './client';
-import type { ApiResponse, PagedResponse } from './auth';
+import api from "@/lib/api";
+import type { Book, BookRequest } from "@/types/book";
 
-export interface BookResponse {
-  id: number;
-  title: string;
-  author: string;
-  isbn: string;
-  publisher: string;
-  publicationYear: number;
-  category: string;
-  subject: string;
-  description: string;
-  coverImage: string;
-  location: string;
-  totalCopies: number;
-  availableCopies: number;
-  averageRating: number;
-  createdAt: string;
-  updatedAt: string;
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp: string;
 }
 
-export interface BookAvailabilityResponse {
-  bookId: number;
-  title: string;
-  isbn: string;
-  author: string;
-  totalCopiesAllBranches: number;
-  availableCopiesAllBranches: number;
-  branches: Array<{
-    branchId: number;
-    branchName: string;
-    location: string;
-    totalCopies: number;
-    availableCopies: number;
-    shelfLocation: string;
-    isAvailable: boolean;
-  }>;
+interface PagedResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  lastPage: boolean;
 }
 
 export const booksApi = {
-  getAll: async (params?: { 
-    page?: number; 
-    size?: number; 
-    sortBy?: string; 
-    sortDir?: string;
-    title?: string;
-    author?: string;
-    category?: string;
-    subject?: string;
-  }) => {
-    const response = await apiClient.get<ApiResponse<PagedResponse<BookResponse>>>('/books', { params });
-    return response.data;
-  },
-  getById: async (id: number) => {
-    const response = await apiClient.get<ApiResponse<BookResponse>>(`/books/${id}`);
-    return response.data;
-  },
-  search: async (q: string, page = 0, size = 10) => {
-    const response = await apiClient.get<ApiResponse<PagedResponse<BookResponse>>>(`/books/search?q=${q}&page=${page}&size=${size}`);
-    return response.data;
-  },
-  getPopular: async () => {
-    const response = await apiClient.get<ApiResponse<BookResponse[]>>('/books/popular');
-    return response.data;
-  },
-  getTrending: async () => {
-    const response = await apiClient.get<ApiResponse<BookResponse[]>>('/books/trending');
-    return response.data;
-  },
-  getNewArrivals: async () => {
-    const response = await apiClient.get<ApiResponse<BookResponse[]>>('/books/new-arrivals');
-    return response.data;
-  },
-  getByCategory: async (category: string, page = 0, size = 10) => {
-    const response = await apiClient.get<ApiResponse<PagedResponse<BookResponse>>>(`/books/category/${category}?page=${page}&size=${size}`);
-    return response.data;
-  },
-  getAvailability: async (id: number) => {
-    const response = await apiClient.get<ApiResponse<BookAvailabilityResponse>>(`/books/${id}/availability`);
-    return response.data;
-  },
-  getReviews: async (id: number) => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/books/${id}/reviews`);
-    return response.data;
-  },
-  submitReview: async (id: number, data: { rating: number, reviewText: string }) => {
-    const response = await apiClient.post<ApiResponse<any>>(`/books/${id}/reviews`, data);
-    return response.data;
-  },
+  // Public Access
+  getAll: (params?: any) => 
+    api.get<ApiResponse<PagedResponse<Book>>>("/books", { params }),
+  
+  getById: (id: number) => 
+    api.get<ApiResponse<Book>>(`/books/${id}`),
+
+  search: (q: string, page = 0, size = 10) =>
+    api.get<ApiResponse<PagedResponse<Book>>>("/books/search", { params: { q, page, size } }),
+
+  getPopular: () =>
+    api.get<ApiResponse<Book[]>>("/books/popular"),
+
+  getTrending: () =>
+    api.get<ApiResponse<Book[]>>("/books/trending"),
+
+  getNewArrivals: () =>
+    api.get<ApiResponse<Book[]>>("/books/new-arrivals"),
+
+  getFeatured: () =>
+    api.get<ApiResponse<Book[]>>("/books/featured"),
+
+  setFeatured: (id: number, featured: boolean, order: number) =>
+    api.patch<ApiResponse<Book>>(`/books/${id}/feature`, null, { params: { featured, order } }),
+
+  getByCategory: (category: string, page = 0, size = 10) =>
+    api.get<ApiResponse<PagedResponse<Book>>>(`/books/category/${category}`, { params: { page, size } }),
+
+  // Librarian/Admin Access
+  create: (data: BookRequest) =>
+    api.post<ApiResponse<Book>>("/books", data),
+
+  update: (id: number, data: BookRequest) =>
+    api.put<ApiResponse<Book>>(`/books/${id}`, data),
+
+  delete: (id: number) =>
+    api.delete<ApiResponse<void>>(`/books/${id}`),
 };

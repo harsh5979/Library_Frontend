@@ -1,92 +1,140 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Navbar } from './components/layout/Navbar'
-import { HomePage } from './pages/HomePage'
-import { BookDetailPage } from './pages/BookDetailPage'
-import { RegisterPage } from './pages/RegisterPage'
-import { SearchPage } from './pages/SearchPage'
-import { LoginPage } from './pages/LoginPage'
-import { MyBooksPage } from './pages/MyBooksPage'
-import { ProfilePage } from './pages/ProfilePage'
-import { Toaster } from './components/ui/toaster'
 
-import { Navigate } from 'react-router-dom'
-import { useAuthStore } from './store/authStore'
-import { AdminDashboard } from './pages/AdminDashboard'
-import { UserManagementPage } from './pages/UserManagementPage'
-import { OverdueManagementPage } from './pages/OverdueManagementPage'
+import { Navbar } from './components/layout/Navbar'
+import { Footer } from './components/layout/Footer'
+import { Toaster } from './components/ui/toaster'
+import { Toaster as Sonner } from 'sonner'
+import { Button } from './components/ui/button'
+import { Link } from 'react-router-dom'
+import { ProtectedRoute } from './components/ProtectedRoute'
+
+// Lazy-loaded pages
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout').then(m => ({ default: m.AdminLayout })))
+const LibrarianLayout = lazy(() => import('./components/layout/LibrarianLayout').then(m => ({ default: m.LibrarianLayout })))
+const LoginPage = lazy(() => import('./features/auth/pages/LoginPage').then(m => ({ default: m.LoginPage })))
+const RegisterPage = lazy(() => import('./features/auth/pages/RegisterPage').then(m => ({ default: m.RegisterPage })))
+const HomePage = lazy(() => import('./features/books/pages/HomePage').then(m => ({ default: m.HomePage })))
+const BookDetailPage = lazy(() => import('./features/books/pages/BookDetailPage').then(m => ({ default: m.BookDetailPage })))
+const SearchPage = lazy(() => import('./features/books/pages/SearchPage').then(m => ({ default: m.SearchPage })))
+const ProfilePage = lazy(() => import('./features/users/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
+const MyBooksPage = lazy(() => import('./features/users/pages/MyBooksPage').then(m => ({ default: m.MyBooksPage })))
+const MyReservationsPage = lazy(() => import('./features/reservations/pages/MyReservationsPage').then(m => ({ default: m.MyReservationsPage })))
+const MyFinesPage = lazy(() => import('./features/fines/pages/MyFinesPage').then(m => ({ default: m.MyFinesPage })))
+const ReadingListsPage = lazy(() => import('./features/reading-lists/pages/ReadingListsPage').then(m => ({ default: m.ReadingListsPage })))
+const PurchaseRequestsPage = lazy(() => import('./features/purchase-requests/pages/PurchaseRequestsPage').then(m => ({ default: m.PurchaseRequestsPage })))
+const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })))
+const LibrarianDashboard = lazy(() => import('./features/admin/pages/LibrarianDashboard').then(m => ({ default: m.LibrarianDashboard })))
+const AdminBooksPage = lazy(() => import('./features/admin/pages/AdminBooksPage').then(m => ({ default: m.AdminBooksPage })))
+const UserManagementPage = lazy(() => import('./features/admin/pages/UserManagementPage').then(m => ({ default: m.UserManagementPage })))
+const OverdueManagementPage = lazy(() => import('./features/admin/pages/OverdueManagementPage').then(m => ({ default: m.OverdueManagementPage })))
+const ReservationManagementPage = lazy(() => import('./features/admin/pages/ReservationManagementPage').then(m => ({ default: m.ReservationManagementPage })))
+const BorrowManagementPage = lazy(() => import('./features/admin/pages/BorrowManagementPage').then(m => ({ default: m.BorrowManagementPage })))
+const FineManagementPage = lazy(() => import('./features/admin/pages/FineManagementPage').then(m => ({ default: m.FineManagementPage })))
+const ForgotPasswordPage = lazy(() => import('./features/auth/pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
+const VerifyEmailPage = lazy(() => import('./features/auth/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })))
+const ResetPasswordPage = lazy(() => import('./features/auth/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
+const AnalyticsPage = lazy(() => import('./features/admin/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })))
+const ReportsPage = lazy(() => import('./features/reports/pages/ReportsPage').then(m => ({ default: m.ReportsPage })))
+const NotificationManagementPage = lazy(() => import('./features/notifications/pages/NotificationManagementPage').then(m => ({ default: m.NotificationManagementPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
+      staleTime: 1000 * 60 * 5,
     },
   },
 })
-
-function ProtectedRoute({ children, roles }: { children: React.ReactNode, roles?: string[] }) {
-  const { isAuthenticated, user } = useAuthStore()
-
-  if (!isAuthenticated) return <Navigate to="/login" replace />
-  if (roles && user && !roles.includes(user.role)) return <Navigate to="/" replace />
-
-  return <>{children}</>
-}
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="min-h-screen bg-background font-sans antialiased selection:bg-primary/10 selection:text-primary">
-          <Navbar />
-          <main className="container mx-auto px-4 py-8 translate-all duration-500 min-h-[calc(100vh-250px)]">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/books/:id" element={<BookDetailPage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/my-books" element={
-                <ProtectedRoute>
-                  <MyBooksPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <ProtectedRoute roles={['LIBRARIAN', 'SUPER_ADMIN']}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/users" element={
-                <ProtectedRoute roles={['LIBRARIAN', 'SUPER_ADMIN']}>
-                   <UserManagementPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/overdue" element={
-                <ProtectedRoute roles={['LIBRARIAN', 'SUPER_ADMIN']}>
-                   <OverdueManagementPage />
-                </ProtectedRoute>
-              } />
-            </Routes>
-          </main>
-          <Toaster />
-          
-          <footer className="border-t bg-muted/30 py-12">
-            <div className="container mx-auto px-4 text-center">
-              <p className="text-sm text-muted-foreground font-medium">
-                © 2026 BiblioSphere Library Management System. <br />
-                Crafted with excellence for advanced learning.
-              </p>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/analytics" element={<AnalyticsPage />} />
+                <Route path="/admin/books" element={<AdminBooksPage />} />
+                <Route path="/admin/users" element={<UserManagementPage />} />
+                <Route path="/admin/overdue" element={<OverdueManagementPage />} />
+                <Route path="/admin/borrows" element={<BorrowManagementPage />} />
+                <Route path="/admin/reservations" element={<ReservationManagementPage />} />
+                <Route path="/admin/fines" element={<FineManagementPage />} />
+                <Route path="/admin/reports" element={<ReportsPage />} />
+                <Route path="/admin/reading-lists" element={<ReadingListsPage />} />
+                <Route path="/admin/purchase-requests" element={<PurchaseRequestsPage />} />
+                <Route path="/admin/notifications" element={<NotificationManagementPage />} />
+              </Route>
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={['LIBRARIAN']} />}>
+              <Route element={<LibrarianLayout />}>
+                <Route path="/librarian" element={<LibrarianDashboard />} />
+                <Route path="/librarian/analytics" element={<AnalyticsPage />} />
+                <Route path="/librarian/books" element={<AdminBooksPage />} />
+                <Route path="/librarian/users" element={<UserManagementPage />} />
+                <Route path="/librarian/overdue" element={<OverdueManagementPage />} />
+                <Route path="/librarian/borrows" element={<BorrowManagementPage />} />
+                <Route path="/librarian/reservations" element={<ReservationManagementPage />} />
+                <Route path="/librarian/fines" element={<FineManagementPage />} />
+                <Route path="/librarian/reading-lists" element={<ReadingListsPage />} />
+                <Route path="/librarian/purchase-requests" element={<PurchaseRequestsPage />} />
+                <Route path="/librarian/notifications" element={<NotificationManagementPage />} />
+              </Route>
+            </Route>
+
+            <Route path="*" element={<PublicLayout />} />
+          </Routes>
+        </Suspense>
+
+        <Toaster />
+        <Sonner richColors position="top-right" />
+      </Router >
+    </QueryClientProvider >
+  )
+}
+
+function PublicLayout() {
+  return (
+    <div className="min-h-screen bg-background font-sans antialiased selection:bg-primary/10 selection:text-primary transition-colors duration-300">
+      <Navbar />
+      <main className="container mx-auto px-4 py-8 min-h-[calc(100vh-250px)]">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/books/:id" element={<BookDetailPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/my-books" element={<MyBooksPage />} />
+            <Route path="/my-reservations" element={<MyReservationsPage />} />
+            <Route path="/fines" element={<MyFinesPage />} />
+            <Route path="/reading-lists" element={<ReadingListsPage />} />
+            <Route path="/purchase-requests" element={<PurchaseRequestsPage />} />
+          </Route >
+          <Route path="/unauthorized" element={
+            <div className="flex flex-col items-center justify-center py-20">
+              <h1 className="text-4xl font-black tracking-tighter">403 - Access Restricted</h1>
+              <p className="text-muted-foreground mt-2 font-medium">You do not have administrative clearance for this terminal.</p>
+              <Button asChild className="mt-8 font-black rounded-xl">
+                <Link to="/">Return to Safety</Link>
+              </Button>
             </div>
-          </footer>
-        </div>
-      </Router>
-    </QueryClientProvider>
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes >
+      </main >
+      <Footer />
+    </div >
   )
 }
 

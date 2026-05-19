@@ -28,5 +28,11 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/app",
+    "src/components/layout/navbar.tsx",
+    "src/components/layout/DashboardLayout.tsx",
+    "src/components/home/trending-section.tsx"
+  ]
 }
